@@ -1,0 +1,20 @@
+digraph ListaCircular {
+  rankdir=LR;
+  nodesep=0.5;
+
+  subgraph cluster_0 {
+    label="Lista circular";
+    fontsize=14;
+    color=black;
+    style=filled;
+    fillcolor=white;
+    node [shape=record, style=filled, fillcolor=lightblue];
+
+    nodo0 [label="{8 \n Karen Sandler \n ksandler \n ksandler@edd.com \n 89514362}"];
+    nodo0 -> nodo1;
+    nodo1 [label="{7 \n Jon Corbet \n jcorbet \n jcorbet@edd.com \n 75849231}"];
+    nodo1 -> nodo2;
+    nodo2 [label="{6 \n Brian Fox \n bfox \n bfox@edd.com \n 64578231}"];
+    nodo2 -> nodo0;
+  }
+}

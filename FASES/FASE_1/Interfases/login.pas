@@ -8,7 +8,7 @@ implementation
     uses
         gtk2, glib2, gdk2,
         rootInterfaz, InterfaceTools,
-        ListaSimple, variables;
+        ListaSimple, usuarioInterfaz, variables;
 
     var
         entryMail, entryPassword: PGtkWidget;
@@ -36,7 +36,7 @@ implementation
             WriteLn(nombreUsuarioActual);
 
             gtk_widget_destroy(loginWWindow);
-            showRootWindow();
+            showUsuarioWindow();
         end
         else if (userText = rootUserEmail) and (passwordText = rootUserPassword) then
         begin

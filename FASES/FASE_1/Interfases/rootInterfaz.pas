@@ -35,6 +35,12 @@ interface
             filesTools.generarReportes('users', 'Root-Reportes', generarDotLS);
         end;
 
+        procedure cerrarSesion(widget: PGtkWidget; data: gpointer); cdecl;
+        begin
+            gtk_widget_destroy(rootWindow);
+            ventanaLogin;
+        end;
+
         procedure showRootWindow;
             var
                 grid: PGtkWidget;
@@ -50,13 +56,14 @@ interface
                 grid := gtk_table_new(5, 1, False);
                 gtk_container_add(GTK_CONTAINER(rootWindow), grid);
 
-                botonCrearUser := gtk_button_new_with_label('Crear Usuario');
-                botonReportes := gtk_button_new_with_label('Generar Reportes');
+                botonCrearUser := gtk_button_new_with_label('Reporte de Relaciones');
+                botonReportes := gtk_button_new_with_label('Reporte de Usuarios');
                 botonCargaMasiva := gtk_button_new_with_label('Carga Masiva');
                 botonSalir := gtk_button_new_with_label('Cerrar Sesion');
 
                 g_signal_connect(botonCargaMasiva, 'clicked', G_CALLBACK(@cargaMasivaClick), nil);
                 g_signal_connect(botonReportes, 'clicked', G_CALLBACK(@generarReportesClick), nil);
+                g_signal_connect(botonSalir, 'clicked', G_CALLBACK(@cerrarSesion), nil);
 
                 gtk_table_attach_defaults(GTK_TABLE(grid), botonCrearUser, 0, 1, 0, 1);
                 gtk_table_attach_defaults(GTK_TABLE(grid), botonReportes, 0, 1, 1, 2);
