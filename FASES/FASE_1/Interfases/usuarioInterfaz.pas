@@ -5,7 +5,7 @@ interface
 
 implementation
     uses
-        SysUtils, gtk2, glib2, gdk2, variables, ListaSimple, ListaCircular, addContactInterface, filesTools, contactosInfo, enviarCorreo, ListaDoble;
+        SysUtils, gtk2, glib2, gdk2, variables, ListaSimple, ListaCircular, addContactInterface, filesTools, contactosInfo, enviarCorreo, ListaDoble, bandejaEntrada, login;
 
     var 
         usuarioWindow: PGtkWidget;
@@ -24,6 +24,11 @@ implementation
         filesTools.generarReportes('correos', 'Correos-Reportes', ListaDoble.generarDotLD);
     end;
 
+    procedure bandejaEntrada(widget: PGtkWidget; data: gpointer); cdecl;
+    begin
+        showBandejaEntradaWindow;
+    end;
+
     procedure informacionContactos(widget: PGtkWidget; data: gpointer); cdecl;
     begin
         contactosInfo.showContactInfoWindow;
@@ -32,6 +37,12 @@ implementation
     procedure correo(widget: PGtkWidget; data: gpointer); cdecl;
     begin
         enviarCorreo.showEnviarCorreoWindow;
+    end;
+
+    procedure cerrarSesionUsuario(widget: PGtkWidget; data: gpointer); cdecl;
+    begin
+        gtk_widget_destroy(usuarioWindow);
+        ventanaLogin;
     end;
 
     procedure showUsuarioWindow;
@@ -65,6 +76,8 @@ implementation
         g_signal_connect(btnReportes, 'clicked', G_CALLBACK(@generarReportes), nil);
         g_signal_connect(btnContactos, 'clicked', G_CALLBACK(@informacionContactos), nil);
         g_signal_connect(btnEnviar, 'clicked', G_CALLBACK(@correo), nil);
+        g_signal_connect(btnBandeja, 'clicked', G_CALLBACK(@bandejaEntrada), nil);
+        g_signal_connect(btnLogOut, 'clicked', G_CALLBACK(@cerrarSesionUsuario), nil);
 
         gtk_table_attach_defaults(GTK_TABLE(grid), btnBandeja, 0, 1, 0, 1);
         gtk_table_attach_defaults(GTK_TABLE(grid), btnEnviar, 0, 1, 1, 2);

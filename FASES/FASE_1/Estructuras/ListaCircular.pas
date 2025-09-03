@@ -20,6 +20,7 @@ interface
             usuario: string;
             telefono: string;
             next: PNode;
+            propietario: string;
         end;
 
     var
@@ -28,7 +29,7 @@ interface
         asunto: String;
         mensaje: String;
 
-    procedure InsertarCircular(id, nombre, email, usuario, telefono: string);
+    procedure InsertarCircular(id, nombre, email, usuarioContacto, telefono, propietario: string);
     function EscapeDotString(const S: string): string;
     function generarDotLC: string;
     function obtenerContactoPorID(id: string): TUserData;
@@ -39,7 +40,7 @@ implementation
     uses
         SysUtils, Classes, InterfaceTools, ListaDoble, enviarCorreo;
 
-    procedure InsertarCircular(id, nombre, email, usuario, telefono: string);
+    procedure InsertarCircular(id, nombre, email, usuarioContacto, telefono, propietario: string);
     var
         nuevoNodo, temp: PNode;
     begin
@@ -47,8 +48,9 @@ implementation
         nuevoNodo^.id := Trim(id);
         nuevoNodo^.nombre := Trim(nombre);
         nuevoNodo^.email := Trim(email);
-        nuevoNodo^.usuario := Trim(usuario);
+        nuevoNodo^.usuario := Trim(usuarioContacto);  // ← Usuario del contacto
         nuevoNodo^.telefono := Trim(telefono);
+        nuevoNodo^.propietario := Trim(propietario);  // ← Usuario logueado que guarda el contacto
 
         if head = nil then
         begin

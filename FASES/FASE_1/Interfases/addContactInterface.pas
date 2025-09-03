@@ -21,7 +21,7 @@ implementation
         usuario := listaSimple.buscarPorEmail(emailBuscado);
         if usuario.email <> '' then
         begin
-            InsertarCircular(usuario.id, usuario.nombre, usuario.email, usuario.usuario, usuario.telefono);
+            InsertarCircular(usuario.id, usuario.nombre, usuario.email, usuario.usuario, usuario.telefono, usuarioActual);
             mostrarMensajeLogin(addContactWindow, 'Contacto guardado', 'El contacto ha sido guardado exitosamente.');
         end
         else

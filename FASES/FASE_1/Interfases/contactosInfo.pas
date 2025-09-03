@@ -14,20 +14,65 @@ implementation
         actualContacto: PNode;
 
     procedure mostrarContacto;
+    var
+        actual, inicio: PNode;
+        encontrado: Boolean;
     begin
-        if actualContacto <> nil then
+        actual := head;
+        if actual = nil then
         begin
-            gtk_label_set_text(GTK_LABEL(labelNombre), PChar('Nombre: ' + actualContacto^.nombre));
-            gtk_label_set_text(GTK_LABEL(labelUsuario), PChar('Usuario: ' + actualContacto^.usuario));
-            gtk_label_set_text(GTK_LABEL(labelCorreo), PChar('Correo: ' + actualContacto^.email));
-            gtk_label_set_text(GTK_LABEL(labelTelefono), PChar('Teléfono: ' + actualContacto^.telefono));
+            gtk_label_set_text(GTK_LABEL(labelNombre), PChar('No hay contactos para este usuario'));
+            gtk_label_set_text(GTK_LABEL(labelUsuario), PChar(''));
+            gtk_label_set_text(GTK_LABEL(labelCorreo), PChar(''));
+            gtk_label_set_text(GTK_LABEL(labelTelefono), PChar(''));
+            Exit;
+        end;
+        inicio := head;
+        encontrado := False;
+        repeat
+            if actual^.propietario = usuarioActual then
+            begin
+                gtk_label_set_text(GTK_LABEL(labelNombre), PChar('Nombre: ' + actual^.nombre));
+                gtk_label_set_text(GTK_LABEL(labelUsuario), PChar('Usuario: ' + actual^.usuario));
+                gtk_label_set_text(GTK_LABEL(labelCorreo), PChar('Correo: ' + actual^.email));
+                gtk_label_set_text(GTK_LABEL(labelTelefono), PChar('Teléfono: ' + actual^.telefono));
+                actualContacto := actual;
+                encontrado := True;
+                Break;
+            end;
+            actual := actual^.next;
+        until (actual = inicio);
+        if not encontrado then
+        begin
+            gtk_label_set_text(GTK_LABEL(labelNombre), PChar('No hay contactos para este usuario'));
+            gtk_label_set_text(GTK_LABEL(labelUsuario), PChar(''));
+            gtk_label_set_text(GTK_LABEL(labelCorreo), PChar(''));
+            gtk_label_set_text(GTK_LABEL(labelTelefono), PChar(''));
+            actualContacto := nil;
         end;
     end;
 
     procedure siguienteContacto(widget: PGtkWidget; data: gpointer); cdecl;
+    var
+        inicio: PNode;
     begin
-        if (actualContacto <> nil) and (actualContacto^.next <> nil) then
+        if (actualContacto = nil) or (actualContacto^.next = nil) then
+        begin
+            mostrarContacto;
+            Exit;
+        end;
+        inicio := actualContacto;
+        repeat
             actualContacto := actualContacto^.next;
+            if (actualContacto^.propietario = usuarioActual) then
+            begin
+                gtk_label_set_text(GTK_LABEL(labelNombre), PChar('Nombre: ' + actualContacto^.nombre));
+                gtk_label_set_text(GTK_LABEL(labelUsuario), PChar('Usuario: ' + actualContacto^.usuario));
+                gtk_label_set_text(GTK_LABEL(labelCorreo), PChar('Correo: ' + actualContacto^.email));
+                gtk_label_set_text(GTK_LABEL(labelTelefono), PChar('Teléfono: ' + actualContacto^.telefono));
+            Exit;
+            end;
+        until (actualContacto = inicio);
         mostrarContacto;
     end;
 

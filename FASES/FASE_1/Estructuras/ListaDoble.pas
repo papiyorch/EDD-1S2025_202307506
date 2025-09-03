@@ -23,6 +23,7 @@ interface
             asunto: string;
             fecha: TDateTime;
             mensaje: string;
+            destinatario: string;
             prev: PNode;
             next: PNode;
         end;
@@ -31,7 +32,7 @@ interface
         head: PNode = nil;
         tail: PNode = nil;
 
-    procedure insertarDoble(idCorreo, remitente, estado: string; programado: Boolean; asunto: string; fecha: TDateTime; mensaje: string);
+    procedure insertarDoble(idCorreo, remitente, estado: string; programado: Boolean; asunto: string; fecha: TDateTime; mensaje: string; destinatario: string);
     function EscapeDotString(const S: string): string;
     function generarDotLD: string;
     procedure imprimirListaDoble;
@@ -40,7 +41,7 @@ implementation
     uses
         SysUtils, Classes;
 
-    procedure insertarDoble(idCorreo, remitente, estado: string; programado: Boolean; asunto: string; fecha: TDateTime; mensaje: string);
+    procedure insertarDoble(idCorreo, remitente, estado: string; programado: Boolean; asunto: string; fecha: TDateTime; mensaje: string; destinatario: string);
     var
         nuevoNodo: PNode;
     begin
@@ -52,6 +53,7 @@ implementation
         nuevoNodo^.asunto := Trim(asunto);
         nuevoNodo^.fecha := fecha;
         nuevoNodo^.mensaje := Trim(mensaje);
+        nuevoNodo^.destinatario := Trim(destinatario);
         nuevoNodo^.prev := nil;
         nuevoNodo^.next := nil;
 

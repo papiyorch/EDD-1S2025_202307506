@@ -11,29 +11,30 @@ implementation
     var
         enviarCorreoWindow: PGtkWidget;
         entryDestinatario, entryAsunto, entryMensaje: PGtkWidget;
+        contadorCorreos: Integer = 0;
 
     procedure enviarCorreo(widget: PGtkWidget; data: gpointer); cdecl;
     var
-        destinatario, asunto, mensaje, remitente, estado, idCorreo: String;
+        correoDestinatario, asunto, mensaje, remitente, estado, idCorreo: String;
         programado: Boolean;
         fechaEnvio: TDateTime;
-        contadorCorreos: Integer = 0;
+        
     begin
-        destinatario := Trim(gtk_entry_get_text(GTK_ENTRY(entryDestinatario)));
+        correoDestinatario := Trim(gtk_entry_get_text(GTK_ENTRY(entryDestinatario)));
         asunto := Trim(gtk_entry_get_text(GTK_ENTRY(entryAsunto)));
         mensaje := Trim(gtk_entry_get_text(GTK_ENTRY(entryMensaje)));
 
         fechaEnvio := Now;
         remitente := emailUsuarioActual;
-        estado := 'No leido';
+        estado := 'NL';
         programado := False;
 
         Inc(contadorCorreos);
         idCorreo := IntToStr(contadorCorreos);
 
-        if existeContacto(destinatario) then
+        if existeContacto(correoDestinatario) then
         begin
-            insertarDoble(idCorreo, remitente, estado, programado, asunto, fechaEnvio, mensaje);
+            insertarDoble(idCorreo, remitente, estado, programado, asunto, fechaEnvio, mensaje, correoDestinatario);
             mostrarMensajeLogin(enviarCorreoWindow, 'Correo Enviado', 'El correo ha sido enviado exitosamente.');
             imprimirListaDoble;
         end
