@@ -1,0 +1,83 @@
+unit enviarCorreo;
+
+interface
+    procedure showEnviarCorreoWindow;
+    
+
+implementation
+    uses
+        SysUtils, InterfaceTools, Classes, glib2, gtk2, gdk2, variables, ListaDoble, ListaCircular;
+
+    var
+        enviarCorreoWindow: PGtkWidget;
+        entryDestinatario, entryAsunto, entryMensaje: PGtkWidget;
+
+    procedure enviarCorreo(widget: PGtkWidget; data: gpointer); cdecl;
+    var
+        destinatario, asunto, mensaje, remitente, estado, idCorreo: String;
+        programado: Boolean;
+        fechaEnvio: TDateTime;
+        contadorCorreos: Integer = 0;
+    begin
+        destinatario := Trim(gtk_entry_get_text(GTK_ENTRY(entryDestinatario)));
+        asunto := Trim(gtk_entry_get_text(GTK_ENTRY(entryAsunto)));
+        mensaje := Trim(gtk_entry_get_text(GTK_ENTRY(entryMensaje)));
+
+        fechaEnvio := Now;
+        remitente := emailUsuarioActual;
+        estado := 'No leido';
+        programado := False;
+
+        Inc(contadorCorreos);
+        idCorreo := IntToStr(contadorCorreos);
+
+        if existeContacto(destinatario) then
+        begin
+            insertarDoble(idCorreo, remitente, estado, programado, asunto, fechaEnvio, mensaje);
+            mostrarMensajeLogin(enviarCorreoWindow, 'Correo Enviado', 'El correo ha sido enviado exitosamente.');
+            imprimirListaDoble;
+        end
+        else
+        begin
+            mostrarMensajeError(enviarCorreoWindow, 'Error', 'El contacto no existe.');
+        end;
+
+    end;
+
+    procedure showEnviarCorreoWindow;
+    var
+        grid: PGtkWidget;
+        btnEnviar: PGtkWidget;
+    begin
+        gtk_init(@argc, @argv);
+
+        enviarCorreoWindow := gtk_window_new(GTK_WINDOW_TOPLEVEL);
+        gtk_window_set_title(GTK_WINDOW(enviarCorreoWindow), 'Enviar Correo');
+        gtk_container_set_border_width(GTK_CONTAINER(enviarCorreoWindow), 10);
+        gtk_window_set_default_size(GTK_WINDOW(enviarCorreoWindow), 400, 300);
+
+        grid := gtk_table_new(5, 2, False);
+        gtk_container_add(GTK_CONTAINER(enviarCorreoWindow), grid);
+
+        entryDestinatario := gtk_entry_new();
+        entryAsunto := gtk_entry_new();
+        entryMensaje := gtk_entry_new();
+
+        gtk_table_attach_defaults(GTK_TABLE(grid), gtk_label_new('Destinatario:'), 0, 1, 0, 1);
+        gtk_table_attach_defaults(GTK_TABLE(grid), entryDestinatario, 1, 2, 0, 1);
+        gtk_table_attach_defaults(GTK_TABLE(grid), gtk_label_new('Asunto:'), 0, 1, 1, 2);
+        gtk_table_attach_defaults(GTK_TABLE(grid), entryAsunto, 1, 2, 1, 2);
+        gtk_table_attach_defaults(GTK_TABLE(grid), gtk_label_new('Mensaje:'), 0, 1, 2, 3);
+        gtk_table_attach_defaults(GTK_TABLE(grid), entryMensaje, 1, 2, 2, 3);
+
+        btnEnviar := gtk_button_new_with_label('Enviar');
+        g_signal_connect(btnEnviar, 'clicked', G_CALLBACK(@enviarCorreo), nil);
+        gtk_table_attach_defaults(GTK_TABLE(grid), btnEnviar, 0, 2, 3, 4);
+
+        gtk_widget_show_all(enviarCorreoWindow);
+
+        g_signal_connect(enviarCorreoWindow, 'destroy', G_CALLBACK(@gtk_main_quit), nil);
+
+        gtk_main;
+    end;
+end.

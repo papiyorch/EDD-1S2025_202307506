@@ -5,7 +5,7 @@ interface
 
 implementation
     uses
-        gtk2, glib2, gdk2, variables, ListaSimple, ListaCircular, addContactInterface, filesTools;
+        SysUtils, gtk2, glib2, gdk2, variables, ListaSimple, ListaCircular, addContactInterface, filesTools, contactosInfo, enviarCorreo, ListaDoble;
 
     var 
         usuarioWindow: PGtkWidget;
@@ -20,7 +20,18 @@ implementation
 
     procedure generarReportes(widget: PGtkWidget; data: gpointer); cdecl;
     begin
-        filesTools.generarReportes('contactos', 'User-Reportes', ListaCircular.generarDotLC);
+        filesTools.generarReportes('contactos', 'Contactos-Reportes', ListaCircular.generarDotLC);
+        filesTools.generarReportes('correos', 'Correos-Reportes', ListaDoble.generarDotLD);
+    end;
+
+    procedure informacionContactos(widget: PGtkWidget; data: gpointer); cdecl;
+    begin
+        contactosInfo.showContactInfoWindow;
+    end;
+
+    procedure correo(widget: PGtkWidget; data: gpointer); cdecl;
+    begin
+        enviarCorreo.showEnviarCorreoWindow;
     end;
 
     procedure showUsuarioWindow;
@@ -52,6 +63,8 @@ implementation
 
         g_signal_connect(btnAgregarContactos, 'clicked', G_CALLBACK(@agregarContacto), nil);
         g_signal_connect(btnReportes, 'clicked', G_CALLBACK(@generarReportes), nil);
+        g_signal_connect(btnContactos, 'clicked', G_CALLBACK(@informacionContactos), nil);
+        g_signal_connect(btnEnviar, 'clicked', G_CALLBACK(@correo), nil);
 
         gtk_table_attach_defaults(GTK_TABLE(grid), btnBandeja, 0, 1, 0, 1);
         gtk_table_attach_defaults(GTK_TABLE(grid), btnEnviar, 0, 1, 1, 2);

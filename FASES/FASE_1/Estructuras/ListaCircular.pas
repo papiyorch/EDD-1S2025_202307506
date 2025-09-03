@@ -1,4 +1,4 @@
-unit listaCircular;
+unit ListaCircular;
 
 {$MODE Delphi}
 
@@ -12,15 +12,6 @@ interface
             telefono: string;
         end;
 
-    procedure InsertarCircular(id, nombre, email, usuario, telefono: string);
-    function generarDotLC: String;
-
-implementation
-
-    uses
-        SysUtils, Classes;
-
-    type    
         PNode = ^TNode;
         TNode = record
             id: string;
@@ -30,32 +21,23 @@ implementation
             telefono: string;
             next: PNode;
         end;
-    
-    var
-        head: PNode = nil;
 
-    function EscapeDotString(const S: string): string;
     var
-        Res: string;
-        i: Integer;
-    begin
-        Res := '';
-        for i := 1 to Length(S) do
-        begin
-            case S[i] of
-                '"': Res := Res + '\"';
-                '\': Res := Res + '\\';
-                '|': Res := Res + '\|';
-                '{': Res := Res + '\{';
-                '}': Res := Res + '\}';
-                #10: Res := Res + '\n';
-                #13: Res := Res + '\n';
-            else
-                Res := Res + S[i];
-            end;
-        end;
-        Result := Res;
-    end;
+        head: PNode;
+        destinatario: String;
+        asunto: String;
+        mensaje: String;
+
+    procedure InsertarCircular(id, nombre, email, usuario, telefono: string);
+    function EscapeDotString(const S: string): string;
+    function generarDotLC: string;
+    function obtenerContactoPorID(id: string): TUserData;
+    function existeContacto(email: string): Boolean;
+
+implementation
+
+    uses
+        SysUtils, Classes, InterfaceTools, ListaDoble, enviarCorreo;
 
     procedure InsertarCircular(id, nombre, email, usuario, telefono: string);
     var
@@ -81,6 +63,29 @@ implementation
             temp^.next := nuevoNodo;
             nuevoNodo^.next := head;
         end;
+    end;
+
+    function EscapeDotString(const S: string): string;
+    var
+        Res: string;
+        i: Integer;
+    begin
+        Res := '';
+        for i := 1 to Length(S) do
+        begin
+            case S[i] of
+                '"': Res := Res + '\"';
+                '\': Res := Res + '\\';
+                '|': Res := Res + '\|';
+                '{': Res := Res + '\{';
+                '}': Res := Res + '\}';
+                #10: Res := Res + '\n';
+                #13: Res := Res + '\n';
+            else
+                Res := Res + S[i];
+            end;
+        end;
+        Result := Res;
     end;
 
     function generarDotLC: string;
@@ -143,5 +148,56 @@ implementation
         SL.Free;
 
         Result := ResultText;
+    end;
+
+    function obtenerContactoPorID(id: string): TUserData;
+    var
+        actualNodo: PNode;
+        contacto: TUserData;
+    begin
+        contacto.id := '';
+        contacto.nombre := '';
+        contacto.email := '';
+        contacto.usuario := '';
+        contacto.telefono := '';
+
+        actualNodo := head;
+
+        while actualNodo <> nil do
+        begin
+
+            if actualNodo^.id = id then
+            begin
+                contacto.id := actualNodo^.id;
+                contacto.nombre := actualNodo^.nombre;
+                contacto.email := actualNodo^.email;
+                contacto.usuario := actualNodo^.usuario;
+                contacto.telefono := actualNodo^.telefono;
+                Break;
+            end;
+            actualNodo := actualNodo^.next;
+        end;
+
+        Result := contacto;
+    end;
+
+    function existeContacto(email: string): Boolean;
+    var
+        temp: PNode;
+        encontrado: Boolean;
+    begin
+        encontrado := False;
+        if head = nil then
+            Exit(False);
+        temp := head;
+        repeat
+            if temp^.email = email then
+            begin
+                encontrado := True;
+                Break;
+            end;
+            temp := temp^.next;
+        until temp = head;
+        Result := encontrado;
     end;
 end.

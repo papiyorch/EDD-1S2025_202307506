@@ -36,7 +36,7 @@ implementation
 
     var
         grid: PGtkWidget;
-        labelCorreo, btnAgregar: PGtkWidget;
+        btnAgregar: PGtkWidget;
 
     begin
         gtk_init(@argc, @argv);
