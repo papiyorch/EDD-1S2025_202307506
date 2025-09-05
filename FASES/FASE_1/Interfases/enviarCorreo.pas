@@ -6,7 +6,7 @@ interface
 
 implementation
     uses
-        SysUtils, InterfaceTools, Classes, glib2, gtk2, gdk2, variables, ListaDoble, ListaCircular;
+        SysUtils, InterfaceTools, Classes, glib2, gtk2, gdk2, variables, ListaDoble, ListaCircular, ListaSimple;
 
     var
         enviarCorreoWindow: PGtkWidget;
@@ -18,7 +18,8 @@ implementation
         correoDestinatario, asunto, mensaje, remitente, estado, idCorreo: String;
         programado: Boolean;
         fechaEnvio: TDateTime;
-        
+        contactoDestino: PNodo;
+
     begin
         correoDestinatario := Trim(gtk_entry_get_text(GTK_ENTRY(entryDestinatario)));
         asunto := Trim(gtk_entry_get_text(GTK_ENTRY(entryAsunto)));
@@ -32,17 +33,25 @@ implementation
         Inc(contadorCorreos);
         idCorreo := IntToStr(contadorCorreos);
 
-        if existeContacto(correoDestinatario) then
-        begin
-            insertarDoble(idCorreo, remitente, estado, programado, asunto, fechaEnvio, mensaje, correoDestinatario);
-            mostrarMensajeLogin(enviarCorreoWindow, 'Correo Enviado', 'El correo ha sido enviado exitosamente.');
-            imprimirListaDoble;
-        end
-        else
+        if not existeContacto(usuarioActual^.contactos, correoDestinatario) then
         begin
             mostrarMensajeError(enviarCorreoWindow, 'Error', 'El contacto no existe.');
+            Exit;
         end;
 
+        // Buscar al usuario REAL (destinatario) por email
+        contactoDestino := buscarUsuarioPorEmail(listaUsuarios, correoDestinatario);
+
+        if contactoDestino = nil then
+        begin
+            mostrarMensajeError(enviarCorreoWindow, 'Error', 'No se encontró el usuario destino.');
+            Exit;
+        end;
+
+        // Insertar el correo en la lista de correos del usuario destino
+        insertarDoble(contactoDestino^.correos, idCorreo, remitente, estado, programado, asunto, fechaEnvio, mensaje);
+        mostrarMensajeLogin(enviarCorreoWindow, 'Correo Enviado', 'El correo ha sido enviado exitosamente.');
+        imprimirListaDoble(contactoDestino^.correos);
     end;
 
     procedure showEnviarCorreoWindow;

@@ -3,67 +3,43 @@ unit ListaCircular;
 {$MODE Delphi}
 
 interface
-    type
-        TUserData = record
-            id: string;
-            nombre: string;
-            email: string;
-            usuario: string;
-            telefono: string;
-        end;
+    uses
+        SysUtils, Classes, InterfaceTools, ListaSimple, ListaDoble, enviarCorreo;
 
-        PNode = ^TNode;
-        TNode = record
-            id: string;
-            nombre: string;
-            email: string;
-            usuario: string;
-            telefono: string;
-            next: PNode;
-            propietario: string;
-        end;
-
-    var
-        head: PNode;
-        destinatario: String;
-        asunto: String;
-        mensaje: String;
-
-    procedure InsertarCircular(id, nombre, email, usuarioContacto, telefono, propietario: string);
+    procedure InsertarCircular(var lista: PContacto; id, nombre, email, usuarioContacto, telefono: string);
     function EscapeDotString(const S: string): string;
-    function generarDotLC: string;
-    function obtenerContactoPorID(id: string): TUserData;
-    function existeContacto(email: string): Boolean;
+    function generarDotLC (lista: PContacto): string;
+    function obtenerContactoPorID(lista: PContacto; id: string): TDatos;
+    function existeContacto(lista: PContacto; email: string): Boolean;
+    function buscarUsuarioPorEmail(listaUsuarios: PNodo; email: String): PNodo;
 
 implementation
 
-    uses
-        SysUtils, Classes, InterfaceTools, ListaDoble, enviarCorreo;
-
-    procedure InsertarCircular(id, nombre, email, usuarioContacto, telefono, propietario: string);
+    procedure InsertarCircular(var lista: PContacto; id, nombre, email, usuarioContacto, telefono: string);
     var
-        nuevoNodo, temp: PNode;
+        nuevoNodo, temp: PContacto;
     begin
         New(nuevoNodo);
         nuevoNodo^.id := Trim(id);
         nuevoNodo^.nombre := Trim(nombre);
         nuevoNodo^.email := Trim(email);
-        nuevoNodo^.usuario := Trim(usuarioContacto);  // ← Usuario del contacto
+        nuevoNodo^.usuario := Trim(usuarioContacto);  //  Usuario del contacto
         nuevoNodo^.telefono := Trim(telefono);
-        nuevoNodo^.propietario := Trim(propietario);  // ← Usuario logueado que guarda el contacto
 
-        if head = nil then
+        nuevoNodo^.siguiente := nil;
+
+        if lista = nil then
         begin
-            head := nuevoNodo;
-            nuevoNodo^.next := head;
+            lista := nuevoNodo;
+            nuevoNodo^.siguiente := lista;
         end
         else
         begin
-            temp := head;
-            while temp^.next <> head do
-                temp := temp^.next;
-            temp^.next := nuevoNodo;
-            nuevoNodo^.next := head;
+            temp := lista;
+            while temp^.siguiente <> lista do
+                temp := temp^.siguiente;
+            temp^.siguiente := nuevoNodo;
+            nuevoNodo^.siguiente := lista;
         end;
     end;
 
@@ -90,10 +66,10 @@ implementation
         Result := Res;
     end;
 
-    function generarDotLC: string;
+    function generarDotLC (lista: PContacto): string;
     var
         SL: TStringList;
-        actualNodo: PNode;
+        actualNodo: PContacto;
         Counter: Integer;
         nombreNodo, NextName: string;
         ResultText: string;
@@ -114,12 +90,12 @@ implementation
         SL.Add('    node [shape=record, style=filled, fillcolor=lightblue];');
         SL.Add('');
 
-        if head = nil then
+        if lista = nil then
             SL.Add('    null [label="Lista vacía", shape=plaintext];')
         else
         begin
             Counter := 0;
-            actualNodo := head;
+            actualNodo := lista;
             firstRun := True;
             repeat
             nombreNodo := Format('nodo%d', [Counter]);
@@ -132,15 +108,15 @@ implementation
                 EscapeDotString(actualNodo^.telefono)]));
 
             NextName := Format('nodo%d', [Counter + 1]);
-            if actualNodo^.next <> head then
+            if actualNodo^.siguiente <> lista then
                 SL.Add(Format('    %s -> %s;', [nombreNodo, NextName]))
             else
                 SL.Add(Format('    %s -> nodo0;', [nombreNodo])); // Apunta al primero
 
             Inc(Counter);
-            actualNodo := actualNodo^.next;
+            actualNodo := actualNodo^.siguiente;
             firstRun := False;
-        until (actualNodo = head) and (not firstRun);
+        until (actualNodo = lista) and (not firstRun);
         end;
 
         SL.Add('  }');
@@ -152,22 +128,20 @@ implementation
         Result := ResultText;
     end;
 
-    function obtenerContactoPorID(id: string): TUserData;
+    function obtenerContactoPorID(lista: PContacto; id: string): TDatos;
     var
-        actualNodo: PNode;
-        contacto: TUserData;
+        actualNodo: PContacto;
+        contacto: TDatos;
+        firstRun: Boolean;
     begin
-        contacto.id := '';
-        contacto.nombre := '';
-        contacto.email := '';
-        contacto.usuario := '';
-        contacto.telefono := '';
+        contacto := Default(TDatos);
 
-        actualNodo := head;
+        if lista = nil then
+            Exit(contacto);
 
-        while actualNodo <> nil do
-        begin
-
+        actualNodo := lista;
+        firstRun := True;
+        repeat
             if actualNodo^.id = id then
             begin
                 contacto.id := actualNodo^.id;
@@ -177,29 +151,45 @@ implementation
                 contacto.telefono := actualNodo^.telefono;
                 Break;
             end;
-            actualNodo := actualNodo^.next;
-        end;
-
+            actualNodo := actualNodo^.siguiente;
+            firstRun := False;
+        until (actualNodo = lista) and (not firstRun);
         Result := contacto;
     end;
 
-    function existeContacto(email: string): Boolean;
+    function buscarUsuarioPorEmail(listaUsuarios: PNodo; email: String): PNodo;
     var
-        temp: PNode;
+        actual: PNodo;
+    begin
+        actual := listaUsuarios;
+        while (actual <> nil) do
+        begin
+            if actual^.email = email then
+                Exit(actual);
+            actual := actual^.siguiente;
+        end;
+    Result := nil; // no encontrado
+end;
+
+    function existeContacto(lista: PContacto; email: string): Boolean;
+    var
+        temp: PContacto;
         encontrado: Boolean;
+        firstRun: Boolean;
     begin
         encontrado := False;
-        if head = nil then
+        if lista = nil then
             Exit(False);
-        temp := head;
+        temp := lista;
+        firstRun := True;
         repeat
             if temp^.email = email then
             begin
                 encontrado := True;
                 Break;
             end;
-            temp := temp^.next;
-        until temp = head;
+            temp := temp^.siguiente;
+        until temp = lista;
         Result := encontrado;
     end;
 end.

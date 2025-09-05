@@ -20,8 +20,8 @@ implementation
 
     procedure generarReportes(widget: PGtkWidget; data: gpointer); cdecl;
     begin
-        filesTools.generarReportes('contactos', 'Contactos-Reportes', ListaCircular.generarDotLC);
-        filesTools.generarReportes('correos', 'Correos-Reportes', ListaDoble.generarDotLD);
+        filesTools.generarReportes('contactos', 'Contactos-Reportes', ListaCircular.generarDotLC(usuarioActual^.contactos));
+        filesTools.generarReportes('correos', 'Correos-Reportes', ListaDoble.generarDotLD(usuarioActual^.correos));
     end;
 
     procedure bandejaEntrada(widget: PGtkWidget; data: gpointer); cdecl;

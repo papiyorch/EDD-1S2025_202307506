@@ -4,27 +4,55 @@ unit ListaSimple;
 {$MODE DELPHI}
 
 interface 
+    uses
+        SysUtils, Classes, InterfaceTools;
     type
-        TDatos = record
+        //Lista circular de contactos
+        PContacto = ^TContacto;
+        TContacto = record
             id: String;
             nombre: String;
             usuario: String;
             email: String;
             telefono: String;
-            password: String;
+            siguiente: PContacto;
         end;
 
-    procedure Insertar(id, nombre, usuario, email, telefono, password: String);
-    procedure imprimir;
-    function generarDotLS: string;
-    function validarCredenciales(email, password: string): boolean;
-    function buscarPorEmail(const email: string): TDatos;
+        //Lista doble de correos
+        PCorreo = ^TCorreo;
+        TCorreo = record
+            idCorreo: String;
+            remitente: String;
+            estado: String;
+            programado: Boolean;
+            asunto: String;
+            fecha: TDateTime;
+            mensaje: String;
+            siguiente, anterior: PCorreo;
+        end;
 
-implementation
-    uses
-        SysUtils, Classes;
+        //Pila de correos
+        PPila = ^TPila;
+        TPila = record
+            idCorreo: String;
+            remitente: String;
+            estado: String;
+            pregramado: Boolean;
+            asunto: String;
+            fechaEnvio: TDateTime;
+            mensaje: String;
+            siguiente: PPila;
+        end;
 
-    type
+        TDatos = record
+            id: String;
+            nombre: String;
+            usuario: String;
+            password: String;
+            email: String;
+            telefono: String;
+        end;
+        
         PNodo = ^TNodo;
         TNodo = record
             id: String;
@@ -33,12 +61,27 @@ implementation
             password: String;
             email: String;
             telefono: String;
+
+            //Estructuras para cada usuario
+            contactos: PContacto;
+            correos: PCorreo;
+            papelera: PPila;
             siguiente: PNodo;
         end;
 
     var
-        cabeza: PNodo = nil;
+        listaUsuarios: PNodo = nil;
 
+    procedure Insertar(id, nombre, usuario, email, telefono, password: String);
+    procedure imprimir;
+    function generarDotLS: string;
+    function validarCredenciales(email, password: string): boolean;
+    function buscarPorEmail(const email: string): TDatos;
+    function obtenerNodoPorEmail(const email: string): PNodo;
+
+implementation
+    var
+        cabeza: PNodo = nil;
     function EscapeDotString(const S: string): string;
     var
         Res: string;
@@ -67,6 +110,18 @@ implementation
         nuevoNodo: PNodo;
         actualNodo : PNodo;
     begin
+        //Verifica si el ID ya existe
+        actualNodo := cabeza;
+        while actualNodo <> nil do
+        begin
+            if LowerCase(Trim(actualNodo^.id)) = LowerCase(Trim(id)) then
+            begin
+                mostrarMensajeError(nil, 'Error al insertar', 'El ID ya existe. No se puede insertar el usuario.');
+                Exit;
+            end;
+            actualNodo := actualNodo^.siguiente;
+        end;
+        //Si no existe crea al usuario
         New(nuevoNodo);
         nuevoNodo^.id := Trim(id);
         nuevoNodo^.nombre := Trim(nombre);
@@ -74,6 +129,11 @@ implementation
         nuevoNodo^.email := Trim(email);
         nuevoNodo^.telefono := Trim(telefono);
         nuevoNodo^.password := Trim(password);
+
+        //Inicializa las estructuras del usuario
+        nuevoNodo^.contactos := nil;
+        nuevoNodo^.correos := nil;
+        nuevoNodo^.papelera := nil;
 
         nuevoNodo^.siguiente := nil;
 
@@ -86,6 +146,7 @@ implementation
                 actualNodo := actualNodo^.siguiente;
             actualNodo^.siguiente := nuevoNodo;
         end;
+        listaUsuarios := cabeza;
     end;
 
     procedure imprimir;
@@ -221,6 +282,23 @@ implementation
                 buscarPorEmail.password := actualNodo^.password;
                 buscarPorEmail.email := actualNodo^.email;
                 buscarPorEmail.telefono := actualNodo^.telefono;
+                Exit;
+            end;
+            actualNodo := actualNodo^.siguiente;
+        end;
+    end;
+
+    function obtenerNodoPorEmail(const email: string): PNodo;
+    var
+        actualNodo: PNodo;
+    begin
+        Result := nil;
+        actualNodo := cabeza;
+        while actualNodo <> nil do
+        begin
+            if actualNodo^.email = Trim(email) then
+            begin
+                Result := actualNodo;
                 Exit;
             end;
             actualNodo := actualNodo^.siguiente;

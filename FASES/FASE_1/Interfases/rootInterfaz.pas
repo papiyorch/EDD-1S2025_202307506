@@ -21,7 +21,6 @@ interface
             status := jsonTools.cargaUsuariosJson(json_file_path);
             if status then
                 begin
-                    imprimir; // Muestra en consola los usuarios cargados
                     mostrarMensajeLogin(rootWindow, 'Carga Masiva', 'Usuarios cargados exitosamente.')
                 end
             else

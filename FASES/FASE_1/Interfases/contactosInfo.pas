@@ -5,73 +5,55 @@ interface
 
 implementation
     uses
-        SysUtils, gtk2, glib2, gdk2, variables, ListaCircular;
+        SysUtils, gtk2, glib2, gdk2, variables, ListaCircular, ListaSimple;
 
     var
         ventanaInfor: PGtkWidget;
         labelNombre, labelUsuario, labelCorreo, labelTelefono: PGtkWidget;
         btnSiguiente: PGtkWidget;
-        actualContacto: PNode;
+        actualContacto: PContacto;
 
     procedure mostrarContacto;
     var
-        actual, inicio: PNode;
-        encontrado: Boolean;
+        lista: PContacto;
     begin
-        actual := head;
-        if actual = nil then
-        begin
-            gtk_label_set_text(GTK_LABEL(labelNombre), PChar('No hay contactos para este usuario'));
-            gtk_label_set_text(GTK_LABEL(labelUsuario), PChar(''));
-            gtk_label_set_text(GTK_LABEL(labelCorreo), PChar(''));
-            gtk_label_set_text(GTK_LABEL(labelTelefono), PChar(''));
-            Exit;
-        end;
-        inicio := head;
-        encontrado := False;
-        repeat
-            if actual^.propietario = usuarioActual then
-            begin
-                gtk_label_set_text(GTK_LABEL(labelNombre), PChar('Nombre: ' + actual^.nombre));
-                gtk_label_set_text(GTK_LABEL(labelUsuario), PChar('Usuario: ' + actual^.usuario));
-                gtk_label_set_text(GTK_LABEL(labelCorreo), PChar('Correo: ' + actual^.email));
-                gtk_label_set_text(GTK_LABEL(labelTelefono), PChar('Teléfono: ' + actual^.telefono));
-                actualContacto := actual;
-                encontrado := True;
-                Break;
-            end;
-            actual := actual^.next;
-        until (actual = inicio);
-        if not encontrado then
+        lista := usuarioActual^.contactos;
+
+        if lista = nil then
         begin
             gtk_label_set_text(GTK_LABEL(labelNombre), PChar('No hay contactos para este usuario'));
             gtk_label_set_text(GTK_LABEL(labelUsuario), PChar(''));
             gtk_label_set_text(GTK_LABEL(labelCorreo), PChar(''));
             gtk_label_set_text(GTK_LABEL(labelTelefono), PChar(''));
             actualContacto := nil;
+            Exit;
         end;
+
+        actualContacto := lista;
+        gtk_label_set_text(GTK_LABEL(labelNombre), PChar('Nombre: ' + actualContacto^.nombre));
+        gtk_label_set_text(GTK_LABEL(labelUsuario), PChar('Usuario: ' + actualContacto^.usuario));
+        gtk_label_set_text(GTK_LABEL(labelCorreo), PChar('Correo: ' + actualContacto^.email));
+        gtk_label_set_text(GTK_LABEL(labelTelefono), PChar('Teléfono: ' + actualContacto^.telefono));
     end;
 
     procedure siguienteContacto(widget: PGtkWidget; data: gpointer); cdecl;
     var
-        inicio: PNode;
+        inicio: PContacto;
     begin
-        if (actualContacto = nil) or (actualContacto^.next = nil) then
+        if (actualContacto = nil) or (actualContacto^.siguiente = nil) then
         begin
             mostrarContacto;
             Exit;
         end;
         inicio := actualContacto;
         repeat
-            actualContacto := actualContacto^.next;
-            if (actualContacto^.propietario = usuarioActual) then
-            begin
-                gtk_label_set_text(GTK_LABEL(labelNombre), PChar('Nombre: ' + actualContacto^.nombre));
-                gtk_label_set_text(GTK_LABEL(labelUsuario), PChar('Usuario: ' + actualContacto^.usuario));
-                gtk_label_set_text(GTK_LABEL(labelCorreo), PChar('Correo: ' + actualContacto^.email));
-                gtk_label_set_text(GTK_LABEL(labelTelefono), PChar('Teléfono: ' + actualContacto^.telefono));
+            actualContacto := actualContacto^.siguiente;
+            
+            gtk_label_set_text(GTK_LABEL(labelNombre), PChar('Nombre: ' + actualContacto^.nombre));
+            gtk_label_set_text(GTK_LABEL(labelUsuario), PChar('Usuario: ' + actualContacto^.usuario));
+            gtk_label_set_text(GTK_LABEL(labelCorreo), PChar('Correo: ' + actualContacto^.email));
+            gtk_label_set_text(GTK_LABEL(labelTelefono), PChar('Teléfono: ' + actualContacto^.telefono));
             Exit;
-            end;
         until (actualContacto = inicio);
         mostrarContacto;
     end;
@@ -102,7 +84,6 @@ implementation
         g_signal_connect(btnSiguiente, 'clicked', G_CALLBACK(@siguienteContacto), nil);
         gtk_table_attach_defaults(GTK_TABLE(grid), btnSiguiente, 0, 1, 4, 5);
 
-        actualContacto := head; 
         mostrarContacto;
 
         gtk_widget_show_all(ventanaInfor);

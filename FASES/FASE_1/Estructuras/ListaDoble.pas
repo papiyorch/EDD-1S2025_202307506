@@ -3,47 +3,19 @@ unit ListaDoble;
 {$MODE DELPHI}
 
 interface
-    type
-        TUserData = record
-            idCorreo: string;
-            remitente: string;
-            estado: string;
-            programado: Boolean;
-            asunto: string;
-            fecha: TDateTime;
-            mensaje: string;
-        end;
+    uses
+        SysUtils, Classes, InterfaceTools, ListaSimple;
 
-        PNode = ^TNode;
-        TNode = record
-            idCorreo: string;
-            remitente: string;
-            estado: string;
-            programado: Boolean;
-            asunto: string;
-            fecha: TDateTime;
-            mensaje: string;
-            destinatario: string;
-            prev: PNode;
-            next: PNode;
-        end;
-
-    var
-        head: PNode = nil;
-        tail: PNode = nil;
-
-    procedure insertarDoble(idCorreo, remitente, estado: string; programado: Boolean; asunto: string; fecha: TDateTime; mensaje: string; destinatario: string);
+    procedure insertarDoble(var lista: PCorreo; idCorreo, remitente, estado: string; programado: Boolean; asunto: string; fecha: TDateTime; mensaje: string);
     function EscapeDotString(const S: string): string;
-    function generarDotLD: string;
-    procedure imprimirListaDoble;
+    function generarDotLD(lista: PCorreo): string;
+    procedure imprimirListaDoble(lista: PCorreo);
 
 implementation
-    uses
-        SysUtils, Classes;
 
-    procedure insertarDoble(idCorreo, remitente, estado: string; programado: Boolean; asunto: string; fecha: TDateTime; mensaje: string; destinatario: string);
+    procedure insertarDoble(var lista: PCorreo; idCorreo, remitente, estado: string; programado: Boolean; asunto: string; fecha: TDateTime; mensaje: string);
     var
-        nuevoNodo: PNode;
+        nuevoNodo, temp: PCorreo;
     begin
         New(nuevoNodo);
         nuevoNodo^.idCorreo := Trim(idCorreo);
@@ -53,20 +25,20 @@ implementation
         nuevoNodo^.asunto := Trim(asunto);
         nuevoNodo^.fecha := fecha;
         nuevoNodo^.mensaje := Trim(mensaje);
-        nuevoNodo^.destinatario := Trim(destinatario);
-        nuevoNodo^.prev := nil;
-        nuevoNodo^.next := nil;
+        nuevoNodo^.siguiente := nil;
+        nuevoNodo^.anterior := nil;
 
-        if head = nil then
+        if lista = nil then
         begin
-            head := nuevoNodo;
-            tail := nuevoNodo;
+            lista := nuevoNodo;
         end
         else
         begin
-            tail^.next := nuevoNodo;
-            nuevoNodo^.prev := tail;
-            tail := nuevoNodo;
+            temp := lista;
+            while temp^.siguiente <> nil do
+                temp := temp^.siguiente;
+            temp^.siguiente := nuevoNodo;
+            nuevoNodo^.anterior := temp;
         end;
     end;
 
@@ -93,10 +65,10 @@ implementation
         Result := Res;
     end;
 
-    function generarDotLD: string;
+    function generarDotLD(lista: PCorreo): string;
     var
         LD: TStringList;
-        actualNodo: PNode;
+        actualNodo: PCorreo;
         Counter: Integer;
         nombreNodo, siguienteNodo: string;
         ResultText: string;
@@ -116,12 +88,12 @@ implementation
         LD.Add('    node [shape=record, style=filled, fillcolor=lightblue];');
         LD.Add('');
 
-        if head = nil then 
+        if lista = nil then 
             LD.Add('    null [label="Lista vacía", shape=plaintext];')
         else
         begin
             Counter := 0;
-            actualNodo := head;
+            actualNodo := lista;
             while actualNodo <> nil do
             begin
                 nombreNodo := Format('nodo%d', [Counter]);
@@ -134,7 +106,8 @@ implementation
                     EscapeDotString(actualNodo^.asunto),
                     DateTimeToStr(actualNodo^.fecha),
                     EscapeDotString(actualNodo^.mensaje)]));
-                if actualNodo^.next <> nil then
+                    
+                if actualNodo^.siguiente <> nil then
                 begin
                     siguienteNodo := Format('nodo%d', [Counter + 1]);
                     LD.Add(Format('    %s -> %s;', [nombreNodo, siguienteNodo]));
@@ -142,7 +115,7 @@ implementation
                 end;
 
                 Inc(Counter);
-                actualNodo := actualNodo^.next;
+                actualNodo := actualNodo^.siguiente;
 
             end;
         end;
@@ -155,17 +128,17 @@ implementation
         Result := ResultText;
     end;
 
-    procedure imprimirListaDoble;
+    procedure imprimirListaDoble(lista: PCorreo);
     var
-        actualNodo: PNode;
+        actualNodo: PCorreo;
     begin
-        if head = nil then
+        if lista = nil then
         begin
             WriteLn('La lista esta vacia');
             Exit;
         end;
 
-        actualNodo := head;
+        actualNodo := lista;
         while actualNodo <> nil do
         begin
             WriteLn('ID: ', actualNodo^.idCorreo);
@@ -176,7 +149,7 @@ implementation
             WriteLn('Fecha: ', DateTimeToStr(actualNodo^.fecha));
             WriteLn('Mensaje: ', actualNodo^.mensaje);
             WriteLn('-------------------------');
-            actualNodo := actualNodo^.next;
+            actualNodo := actualNodo^.siguiente;
         end;
     end;
 end.

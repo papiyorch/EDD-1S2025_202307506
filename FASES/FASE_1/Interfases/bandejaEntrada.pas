@@ -7,23 +7,29 @@ interface
 
 implementation
     uses
-        SysUtils, gtk2, glib2, gdk2, variables, InterfaceTools, ListaDoble;
+        SysUtils, gtk2, glib2, gdk2, variables, InterfaceTools, ListaDoble, ListaSimple;
 
     var
-        bandejaEntradaWindow: PGtkWidget;
+        bandejaEntradaWindow, detalleWindow: PGtkWidget;
         treeView: PGtkWidget;
         listStore: PGtkListStore;
+        
 
-    procedure mostrarDetalleCorreo(correo: PNode);
+    procedure eliminarCorreo(widget: PGtkWidget; data: gpointer); cdecl;
+        begin
+            //A
+        end;
+
+    procedure mostrarDetalleCorreo(correo: PCorreo);
         var
-            detalleWindow, grid: PGtkWidget;
+            grid, btnEliminar: PGtkWidget;
         begin
             detalleWindow := gtk_window_new(GTK_WINDOW_TOPLEVEL);
             gtk_window_set_title(GTK_WINDOW(detalleWindow), 'Detalle del Correo');
             gtk_container_set_border_width(GTK_CONTAINER(detalleWindow), 10);
             gtk_window_set_default_size(GTK_WINDOW(detalleWindow), 400, 300);
 
-            grid := gtk_table_new(4, 2, False);
+            grid := gtk_table_new(5, 2, False);
             gtk_container_add(GTK_CONTAINER(detalleWindow), grid);
 
             gtk_table_attach_defaults(GTK_TABLE(grid), gtk_label_new('Remitente:'), 0, 1, 0, 1);
@@ -35,40 +41,45 @@ implementation
             gtk_table_attach_defaults(GTK_TABLE(grid), gtk_label_new('Mensaje:'), 0, 1, 3, 4);
             gtk_table_attach_defaults(GTK_TABLE(grid), gtk_label_new(PChar(correo^.mensaje)), 1, 2, 3, 4);
 
+            btnEliminar := gtk_button_new_with_label('Eliminar');
+            g_signal_connect(btnEliminar, 'clicked', G_CALLBACK(@eliminarCorreo), correo);
+            gtk_table_attach_defaults(GTK_TABLE(grid), btnEliminar, 0, 2, 4, 5);
+
             gtk_widget_show_all(detalleWindow);
         end;
 
-    function obtenerCorreoPorIndice(indice: Integer): PNode;
+    function obtenerCorreoPorIndice(lista: PCorreo; indice: Integer): PCorreo;
         var
-            actual: PNode;
+            actual: PCorreo;
             contador: Integer;
         begin
-            actual := head;
+            actual := lista;
             contador := 0;
             while (actual <> nil) and (contador < indice) do
             begin
-                actual := actual^.next;
+                actual := actual^.siguiente;
                 Inc(contador);
             end;
             Result := actual;
         end;
 
+    
     procedure onCorreoSeleccionado(treeView: PGtkWidget; path: PGtkTreePath; column: PGtkTreeViewColumn; TUserData: gpointer); cdecl;
         var
             indice: Integer;
-            correo: PNode;
+            correo: PCorreo;
         begin
             indice := StrToInt(gtk_tree_path_to_string(path));
-            correo := obtenerCorreoPorIndice(indice);
+            correo := obtenerCorreoPorIndice(usuarioActual^.correos, indice);
             if correo <> nil then
-                correo.estado := 'L'; // Marcar como leído
+                correo^.estado := 'L'; // Marcar como leído
                 mostrarDetalleCorreo(correo);
         end;
 
     procedure showBandejaEntradaWindow;
     var
         grid: PGtkWidget;
-        actual: PNode;
+        actual: PCorreo;
         iter: TGtkTreeIter;
         colRemitente, colAsunto, colEstado: PGtkTreeViewColumn;
     begin
@@ -98,19 +109,17 @@ implementation
         gtk_table_attach_defaults(GTK_TABLE(grid), treeView, 0, 1, 0, 1);
 
         //Datos
-        actual := head;
+        actual := usuarioActual^.correos;
         while actual <> nil do
         begin
-            if actual^.destinatario = emailUsuarioActual then
-            begin
-                gtk_list_store_append(GTK_LIST_STORE(listStore), @iter);
-                gtk_list_store_set(GTK_LIST_STORE(listStore), @iter,
-                    0, PChar(actual^.estado),
-                    1, PChar(actual^.asunto),
-                    2, PChar(actual^.remitente),
-                -1);
-            end;
-            actual := actual^.next;
+            
+            gtk_list_store_append(GTK_LIST_STORE(listStore), @iter);
+            gtk_list_store_set(GTK_LIST_STORE(listStore), @iter,
+                0, PChar(actual^.estado),
+                1, PChar(actual^.asunto),
+                2, PChar(actual^.remitente),
+            -1);
+            actual := actual^.siguiente;
         end;
 
         g_signal_connect(treeView, 'row-activated', G_CALLBACK(@onCorreoSeleccionado), nil);

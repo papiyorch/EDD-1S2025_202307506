@@ -31,7 +31,7 @@ implementation
 
             nombreUsuarioActual := userData.nombre;
             emailUsuarioActual := userData.email;
-            usuarioActual := userData.usuario;
+            usuarioActual := obtenerNodoPorEmail(userText);
 
             WriteLn(nombreUsuarioActual);
 
@@ -43,7 +43,7 @@ implementation
             IDUsuarioActual := 0;
             nombreUsuarioActual := 'Root';
             emailUsuarioActual := rootUserEmail;
-            usuarioActual := 'root';
+            usuarioActual := nil;
 
             gtk_widget_destroy(loginWWindow);
             showRootWindow();
