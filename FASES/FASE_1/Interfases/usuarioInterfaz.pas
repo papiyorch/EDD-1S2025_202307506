@@ -5,7 +5,7 @@ interface
 
 implementation
     uses
-        SysUtils, gtk2, glib2, gdk2, variables, ListaSimple, ListaCircular, addContactInterface, filesTools, contactosInfo, enviarCorreo, ListaDoble, bandejaEntrada, login;
+        SysUtils, gtk2, glib2, gdk2, variables, ListaSimple, ListaCircular, addContactInterface, filesTools, contactosInfo, enviarCorreo, ListaDoble, Pila, bandejaEntrada, login;
 
     var 
         usuarioWindow: PGtkWidget;
@@ -22,6 +22,7 @@ implementation
     begin
         filesTools.generarReportes('contactos', 'Contactos-Reportes', ListaCircular.generarDotLC(usuarioActual^.contactos));
         filesTools.generarReportes('correos', 'Correos-Reportes', ListaDoble.generarDotLD(usuarioActual^.correos));
+        filesTools.generarReportes('papelera', 'Papelera-Reportes', Pila.generarDotPila(usuarioActual^.papelera));
     end;
 
     procedure bandejaEntrada(widget: PGtkWidget; data: gpointer); cdecl;

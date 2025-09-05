@@ -97,7 +97,7 @@ implementation
             while actualNodo <> nil do
             begin
                 nombreNodo := Format('nodo%d', [Counter]);
-                LD.Add(Format('    %s [label="{%s \n %s \n %s \n %s \n %s}"];',
+                LD.Add(Format('    %s [label="{%s \n %s \n %s \n %s \n %s \n %s \n %s}"];',
                     [nombreNodo,
                     EscapeDotString(actualNodo^.idCorreo),
                     EscapeDotString(actualNodo^.remitente),

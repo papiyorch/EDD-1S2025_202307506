@@ -7,7 +7,7 @@ interface
 
 implementation
     uses
-        SysUtils, gtk2, glib2, gdk2, variables, InterfaceTools, ListaDoble, ListaSimple;
+        SysUtils, gtk2, glib2, gdk2, variables, InterfaceTools, ListaDoble, ListaSimple, Pila;
 
     var
         bandejaEntradaWindow, detalleWindow: PGtkWidget;
@@ -16,8 +16,28 @@ implementation
         
 
     procedure eliminarCorreo(widget: PGtkWidget; data: gpointer); cdecl;
+        var 
+            correoEliminar: PCorreo;
+            pilaUsuario: PPila;
         begin
-            //A
+            correoEliminar := PCorreo(data);
+            pilaUsuario := usuarioActual^.papelera;
+
+            //Insertar a la pila
+            insertarPila(pilaUsuario, correoEliminar^.idCorreo, correoEliminar^.remitente, correoEliminar^.estado, correoEliminar^.programado, correoEliminar^.asunto, correoEliminar^.fecha, correoEliminar^.mensaje);
+            usuarioActual^.papelera := pilaUsuario;
+
+            // Eliminar de la lista de correos
+            if correoEliminar^.anterior <> nil then
+                correoEliminar^.anterior^.siguiente := correoEliminar^.siguiente
+            else
+                usuarioActual^.correos := correoEliminar^.siguiente; 
+
+            if correoEliminar^.siguiente <> nil then
+            correoEliminar^.siguiente^.anterior := correoEliminar^.anterior;
+
+            Dispose(correoEliminar);
+            imprimirPila(usuarioActual^.papelera);
         end;
 
     procedure mostrarDetalleCorreo(correo: PCorreo);

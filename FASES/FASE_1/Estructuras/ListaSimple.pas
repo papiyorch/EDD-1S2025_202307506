@@ -7,6 +7,7 @@ interface
     uses
         SysUtils, Classes, InterfaceTools;
     type
+
         //Lista circular de contactos
         PContacto = ^TContacto;
         TContacto = record
@@ -37,7 +38,7 @@ interface
             idCorreo: String;
             remitente: String;
             estado: String;
-            pregramado: Boolean;
+            programado: Boolean;
             asunto: String;
             fechaEnvio: TDateTime;
             mensaje: String;
