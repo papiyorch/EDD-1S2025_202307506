@@ -45,6 +45,21 @@ interface
             siguiente: PPila;
         end;
 
+        //Cola de correos programados
+        PProgramados = ^TProgramados;
+        TProgramados = record
+            idCorreo: String;
+            remitente: String;
+            estado: String;
+            programado: Boolean;
+            asunto: String;
+            fechaEnvio: TDateTime;
+            mensaje: String;
+            destinatario: String;
+            siguiente: PProgramados;
+        end;
+        PPProgramados = ^PProgramados; 
+
         TDatos = record
             id: String;
             nombre: String;
@@ -68,6 +83,7 @@ interface
             correos: PCorreo;
             papelera: PPila;
             siguiente: PNodo;
+            correosProgramados: PProgramados;
         end;
 
     var
@@ -135,6 +151,7 @@ implementation
         nuevoNodo^.contactos := nil;
         nuevoNodo^.correos := nil;
         nuevoNodo^.papelera := nil;
+        nuevoNodo^.correosProgramados := nil;
 
         nuevoNodo^.siguiente := nil;
 

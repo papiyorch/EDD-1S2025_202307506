@@ -5,12 +5,17 @@ interface
 
 implementation
     uses
-        SysUtils, gtk2, glib2, gdk2, variables, ListaSimple, ListaCircular, addContactInterface, filesTools, contactosInfo, enviarCorreo, ListaDoble, Pila, bandejaEntrada, login;
+        SysUtils, gtk2, glib2, gdk2, variables, ListaSimple, ListaCircular, addContactInterface, filesTools, contactosInfo, enviarCorreo, ListaDoble, Pila, bandejaEntrada, 
+        papelera, login, programarCorreo, Cola, correosPInterfaz;
 
     var 
         usuarioWindow: PGtkWidget;
         btnBandeja, btnEnviar, btnPapelera, btnProgramar, btnCorreosP, btnAgregarContactos, btnContactos, btnActualizar, btnReportes, btnLogOut: PGtkWidget;
 
+    procedure papelera(widget: PGtkWidget; data: gpointer); cdecl;
+    begin
+        showPapeleraWindow;
+    end;
 
     procedure agregarContacto(widget: PGtkWidget; data: gpointer); cdecl;
     begin
@@ -23,6 +28,7 @@ implementation
         filesTools.generarReportes('contactos', 'Contactos-Reportes', ListaCircular.generarDotLC(usuarioActual^.contactos));
         filesTools.generarReportes('correos', 'Correos-Reportes', ListaDoble.generarDotLD(usuarioActual^.correos));
         filesTools.generarReportes('papelera', 'Papelera-Reportes', Pila.generarDotPila(usuarioActual^.papelera));
+        filesTools.generarReportes('correos_programados', 'CorreosProgramados-Reportes', Cola.generarDotCola(usuarioActual^.correosProgramados));
     end;
 
     procedure bandejaEntrada(widget: PGtkWidget; data: gpointer); cdecl;
@@ -44,6 +50,16 @@ implementation
     begin
         gtk_widget_destroy(usuarioWindow);
         ventanaLogin;
+    end;
+
+    procedure programarCorreo(widget: PGtkWidget; data: gpointer); cdecl;
+    begin
+        showProgramarCorreoWindow;
+    end;
+
+    procedure verCorreosProgramados(widget: PGtkWidget; data: gpointer); cdecl;
+    begin
+        showProgramadosWindow;
     end;
 
     procedure showUsuarioWindow;
@@ -79,6 +95,9 @@ implementation
         g_signal_connect(btnEnviar, 'clicked', G_CALLBACK(@correo), nil);
         g_signal_connect(btnBandeja, 'clicked', G_CALLBACK(@bandejaEntrada), nil);
         g_signal_connect(btnLogOut, 'clicked', G_CALLBACK(@cerrarSesionUsuario), nil);
+        g_signal_connect(btnPapelera, 'clicked', G_CALLBACK(@papelera), nil);
+        g_signal_connect(btnProgramar, 'clicked', G_CALLBACK(@programarCorreo), nil);
+        g_signal_connect(btnCorreosP, 'clicked', G_CALLBACK(@verCorreosProgramados), nil);
 
         gtk_table_attach_defaults(GTK_TABLE(grid), btnBandeja, 0, 1, 0, 1);
         gtk_table_attach_defaults(GTK_TABLE(grid), btnEnviar, 0, 1, 1, 2);
