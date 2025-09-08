@@ -6,7 +6,7 @@ interface
 implementation
     uses
         SysUtils, gtk2, glib2, gdk2, variables, ListaSimple, ListaCircular, addContactInterface, filesTools, contactosInfo, enviarCorreo, ListaDoble, Pila, bandejaEntrada, 
-        papelera, login, programarCorreo, Cola, correosPInterfaz;
+        papelera, login, programarCorreo, Cola, correosPInterfaz, perfilUsuario;
 
     var 
         usuarioWindow: PGtkWidget;
@@ -62,6 +62,11 @@ implementation
         showProgramadosWindow;
     end;
 
+    procedure verDatosUsuario(widget: PGtkWidget; data: gpointer); cdecl;
+    begin
+        showPerfilUsuarioWindow;
+    end;
+
     procedure showUsuarioWindow;
 
     var 
@@ -98,6 +103,7 @@ implementation
         g_signal_connect(btnPapelera, 'clicked', G_CALLBACK(@papelera), nil);
         g_signal_connect(btnProgramar, 'clicked', G_CALLBACK(@programarCorreo), nil);
         g_signal_connect(btnCorreosP, 'clicked', G_CALLBACK(@verCorreosProgramados), nil);
+        g_signal_connect(btnActualizar, 'clicked', G_CALLBACK(@verDatosUsuario), nil);
 
         gtk_table_attach_defaults(GTK_TABLE(grid), btnBandeja, 0, 1, 0, 1);
         gtk_table_attach_defaults(GTK_TABLE(grid), btnEnviar, 0, 1, 1, 2);
