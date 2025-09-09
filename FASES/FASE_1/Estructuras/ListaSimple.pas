@@ -82,8 +82,8 @@ interface
             contactos: PContacto;
             correos: PCorreo;
             papelera: PPila;
-            siguiente: PNodo;
             correosProgramados: PProgramados;
+            siguiente: PNodo;
         end;
 
     var
@@ -251,8 +251,6 @@ implementation
 
         Result := ResultText;
     end;
-
-
 
     function validarCredenciales(email, password: string): boolean;
     var

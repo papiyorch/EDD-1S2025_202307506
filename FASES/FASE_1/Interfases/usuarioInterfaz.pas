@@ -25,10 +25,10 @@ implementation
 
     procedure generarReportes(widget: PGtkWidget; data: gpointer); cdecl;
     begin
-        filesTools.generarReportes('contactos', 'Contactos-Reportes', ListaCircular.generarDotLC(usuarioActual^.contactos));
-        filesTools.generarReportes('correos', 'Correos-Reportes', ListaDoble.generarDotLD(usuarioActual^.correos));
-        filesTools.generarReportes('papelera', 'Papelera-Reportes', Pila.generarDotPila(usuarioActual^.papelera));
-        filesTools.generarReportes('correos_programados', 'CorreosProgramados-Reportes', Cola.generarDotCola(usuarioActual^.correosProgramados));
+        filesTools.generarReportes('contactos', 'Usuarios-Reportes', ListaCircular.generarDotLC(usuarioActual^.contactos));
+        filesTools.generarReportes('correos', 'Usuarios-Reportes', ListaDoble.generarDotLD(usuarioActual^.correos));
+        filesTools.generarReportes('papelera', 'Usuarios-Reportes', Pila.generarDotPila(usuarioActual^.papelera));
+        filesTools.generarReportes('correos_programados', 'Usuarios-Reportes', Cola.generarDotCola(usuarioActual^.correosProgramados));
     end;
 
     procedure bandejaEntrada(widget: PGtkWidget; data: gpointer); cdecl;
