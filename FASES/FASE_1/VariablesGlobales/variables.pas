@@ -14,7 +14,7 @@ var
 
     //Root User
     const
-        rootUserEmail: String = '1';
+        rootUserEmail: String = 'root@edd.com';
         rootUserPassword: String = 'root123';
 
 implementation
