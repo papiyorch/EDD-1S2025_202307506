@@ -3,7 +3,7 @@ unit listaDeLista;
 {$MODE DELPHI}
 interface
     uses
-        SysUtils, Classes, InterfaceTools;
+        SysUtils, Classes, InterfaceTools, listaSimpleMensajes;
 
     type
 
@@ -26,6 +26,8 @@ interface
             id: Integer;
             nombre: String;
             usuarios: TComunidadUsuarioList;
+            mensajes: PMensaje; // Nueva lista de mensajes para la comunidad
+            fechaCreacion: TDateTime; // Nuevo campo para la fecha de creación
             siguiente: PComunidad;
         end;
 
@@ -41,7 +43,7 @@ interface
     function existeUsuarioEnComunidad(lista: TComunidadUsuarioList; email: String): Boolean;
 
     procedure inicializarComunidadList(var lista: TComunidadList);
-    function agregarComunidad(var lista: TComunidadList; nombre: String): Integer;
+    function agregarComunidad(var lista: TComunidadList; nombre, mensajes: String): Integer;
     function comunidadPorNombre(lista: TComunidadList; nombre: String): PComunidad;
     function comunidadPorID(lista: TComunidadList; id: Integer): PComunidad;
     procedure agregarUsuarioPorNombre(var lista: TComunidadList; nombreComunidad, email: String);
@@ -130,8 +132,7 @@ implementation
         end;
     end;
 
-
-    function agregarComunidad(var lista: TComunidadList; nombre: String): Integer;
+    function agregarComunidad(var lista: TComunidadList; nombre, mensajes: String): Integer;
     var
         nuevaComunidad: PComunidad;
         actual: PComunidad;
@@ -156,6 +157,8 @@ implementation
         nuevaComunidad^.id := nextID;
         nuevaComunidad^.nombre := nombre;
         inicializarComunidadUsuarioList(nuevaComunidad^.usuarios);
+        nuevaComunidad^.mensajes := nil;
+        nuevaComunidad^.fechaCreacion := Now; // Asignar la fecha actual
         nuevaComunidad^.siguiente := nil;
 
         if lista.cabeza = nil then
@@ -174,7 +177,6 @@ implementation
         Inc(lista.contador);
         Result := nextID;
     end;
-        
 
     function comunidadPorID(lista: TComunidadList; id: Integer): PComunidad;
     var

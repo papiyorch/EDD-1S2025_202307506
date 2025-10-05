@@ -6,9 +6,7 @@ interface
     implementation
 
         uses
-            gtk2, glib2, gdk2,
-            login, InterfaceTools,
-            ListaSimple, variables, jsonTools, filesTools, comunidades, listaDeLista;
+            gtk2, glib2, gdk2, login, InterfaceTools, ListaSimple, variables, jsonTools, filesTools, comunidades, listaDeLista, AbolBST;
 
         var
             rootWindow: PGtkWidget;
@@ -33,6 +31,7 @@ interface
         begin
             filesTools.generarReportes('users', 'Root-Reportes', generarDotLS);
             filesTools.generarReportes('comunidades', 'Root-Reportes', listaDeLista.generarDotListaDeLista(listaComunidades));
+            filesTools.generarReportes('ArbolBST', 'Root-Reportes', AbolBST.generarDOTBST(raiz));
         end;
 
         procedure mostrarComunidadesClick(widget: PGtkWidget; data: gpointer); cdecl;

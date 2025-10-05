@@ -51,7 +51,7 @@ implementation
             // Si no existe la comunidad, la agregamos
             if comunidadPorNombre(listaComunidades, String(nombreComunidad)) = nil then
             begin
-                agregarComunidad(listaComunidades, String(nombreComunidad)); 
+                agregarComunidad(listaComunidades, String(nombreComunidad), ''); 
                 actualizarComboComunidades;
                 gtk_combo_box_set_active(GTK_COMBO_BOX(comboComunidades), listaComunidades.contador - 1);
                 gtk_entry_set_text(GTK_ENTRY(entryNombreComunidad), '');

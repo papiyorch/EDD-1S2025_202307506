@@ -37,13 +37,13 @@ implementation
             Exit;
         end;
 
-        raizAVL := insertarAVL(raizAVL, StrToInt(borrador.idCorreo), borrador);
+        usuarioActual^.borradores := insertarAVL(usuarioActual^.borradores, StrToInt(borrador.idCorreo), borrador);
         mostrarMensajeLogin(verBorradoresWindow, 'Éxito', 'Borrador agregado correctamente.');
 
         if listStore <> nil then
         begin
             gtk_list_store_clear(listStore);
-            recorrerInorden(raizAVL, @AgregarBorrador);
+            recorrerInorden(usuarioActual^.borradores, @AgregarBorrador);
         end;
     end;   
 
@@ -93,9 +93,9 @@ implementation
         mostrarMensajeLogin(verBorradoresWindow, 'Éxito', 'Correo enviado correctamente.');
 
         // Eliminar el borrador del árbol AVL
-        eliminar(raizAVL, borrador^.clave);
+        eliminar(usuarioActual^.borradores, borrador^.clave);
         gtk_list_store_clear(listStore);
-        recorrerInorden(raizAVL, @AgregarBorrador);
+        recorrerInorden(usuarioActual^.borradores, @AgregarBorrador);
     end;
 
     procedure mostrarVentanaEdicion(idCorreo: Integer);
@@ -106,7 +106,7 @@ implementation
         borrador: PNodoAVL;
         buffer: PGtkTextBuffer;
     begin
-        borrador := buscar(raizAVL, idCorreo);
+        borrador := buscar(usuarioActual^.borradores, idCorreo);
         if borrador = nil then
         begin
             mostrarMensajeError(verBorradoresWindow, 'Error', 'No se encontró el borrador.');
@@ -204,7 +204,7 @@ implementation
 
         //Llenar el ListStore con los borradores existentes
         gtk_list_store_clear(listStore);
-        recorrerInorden(raizAVL, @AgregarBorrador);
+        recorrerInorden(usuarioActual^.borradores, @AgregarBorrador);
 
         //Conectar la señal de activación de fila
         g_signal_connect(G_OBJECT(treeView), 'row-activated', G_CALLBACK(@onTreeViewRowActivated), nil);

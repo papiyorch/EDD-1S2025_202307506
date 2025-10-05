@@ -4,7 +4,7 @@ unit verFavoritos;
 
 interface
 uses
-    SysUtils, gtk2, glib2, gdk2, ArbolB, InterfaceTools, variables;
+    SysUtils, gtk2, glib2, gdk2, ArbolB, InterfaceTools, variables, ListaSimple;
 
     procedure showVerFavoritosWindow;
     procedure insertarFavorito(correo: TCorreoFavorito);
@@ -36,14 +36,14 @@ implementation
             Exit;
         end;
 
-        insertar(raiz, StrToInt(correo.idCorreo), correo);
+        insertarB(usuarioActual^.favoritos, StrToInt(correo.idCorreo), correo);
 
         mostrarMensajeLogin(verFavoritosWindow, 'Éxito', 'Favorito agregado correctamente.');
         
         if listStore <> nil then
         begin
             gtk_list_store_clear(listStore);
-            recorrerInorden(raiz, @AgregarFavorito);
+            recorrerInorden(usuarioActual^.favoritos, @AgregarFavorito);
         end;
     end;
     
@@ -55,7 +55,7 @@ implementation
         claveStr: PChar;
         clave: Integer;
     begin
-        if raiz = nil then
+        if usuarioActual^.favoritos = nil then
         begin
             mostrarMensajeError(verFavoritosWindow, 'Error', 'No hay favoritos para eliminar.');
             Exit;
@@ -66,12 +66,12 @@ implementation
         begin
             gtk_tree_model_get(model, @iter, 0, @claveStr, -1);
             clave := StrToInt(claveStr);
-            eliminar(raiz, clave);
+            eliminar(usuarioActual^.favoritos, clave);
             mostrarMensajeLogin(verFavoritosWindow, 'Éxito', 'Favorito eliminado correctamente.');
 
             //refrescar la vista
             gtk_list_store_clear(listStore);
-            recorrerInorden(raiz, @AgregarFavorito);
+            recorrerInorden(usuarioActual^.favoritos, @AgregarFavorito);
         end
         else
             mostrarMensajeError(verFavoritosWindow, 'Error', 'No se ha seleccionado ningún favorito para eliminar.');
@@ -83,7 +83,7 @@ implementation
         i: Integer;
         
     begin
-        nodo := buscar(raiz, clave);
+        nodo := buscar(usuarioActual^.favoritos, clave);
         if nodo = nil then
             mostrarMensajeError(verFavoritosWindow, 'Error', 'No se encontró el favorito.');
 
@@ -180,7 +180,7 @@ implementation
 
         // Rellenar el ListStore con los favoritos del usuario actual
         gtk_list_store_clear(listStore);
-        recorrerInorden(raiz, @AgregarFavorito);
+        recorrerInorden(usuarioActual^.favoritos, @AgregarFavorito);
 
         // Conectar la señal de selección
         g_signal_connect(G_OBJECT(treeView), 'row-activated', G_CALLBACK(@onFavoritoSeleccionado), nil);

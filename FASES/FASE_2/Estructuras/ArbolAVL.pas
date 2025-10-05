@@ -26,9 +26,6 @@ interface
             derecho: PNodoAVL;
         end;
 
-    var
-        raizAVL: PNodoAVL = nil;
-
     function insertarAVL(var raiz: PNodoAVL; clave: Integer; valor: TBorrador): PNodoAVL;
     function buscar(raiz: PNodoAVL; clave: Integer): PNodoAVL;
     procedure actualizar(var raiz: PNodoAVL; clave: Integer; nuevoValor: TBorrador);

@@ -32,14 +32,11 @@ interface
             eshoja: Boolean;
         end;
 
-    var
-        raiz: PNodoB = nil;
-
     function crearNodoB(esHoja: Boolean): PNodoB;
     function buscar(nodo: PNodoB; clave: Integer): PNodoB;
     procedure dividirNodo(padre: PNodoB; indice: Integer; hijo: PNodoB);
     procedure insertarNoLleno(nodo: PNodoB; clave: Integer; correo: TCorreoFavorito);
-    procedure insertar(var raiz: PNodoB; clave: Integer; correo: TCorreoFavorito);
+    procedure insertarB(var raiz: PNodoB; clave: Integer; correo: TCorreoFavorito);
     procedure imprimirArbol(nodo: PNodoB);
     procedure eliminar(var nodo: PNodoB; clave: Integer);
     procedure recorrerInorden(nodo: PNodoB; callback: TCorreoFavoritoCallback);
@@ -155,7 +152,7 @@ implementation
         end;
     end;
 
-    procedure insertar(var raiz: PNodoB; clave: Integer; correo: TCorreoFavorito);
+    procedure insertarB(var raiz: PNodoB; clave: Integer; correo: TCorreoFavorito);
     var
         nuevaRaiz: PNodoB;
     begin

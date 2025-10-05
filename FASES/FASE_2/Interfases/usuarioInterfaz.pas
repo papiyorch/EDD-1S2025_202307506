@@ -6,12 +6,12 @@ interface
 implementation
     uses
         SysUtils, gtk2, glib2, gdk2, variables, ListaSimple, ListaCircular, addContactInterface, filesTools, contactosInfo, enviarCorreo, ListaDoble, Pila, bandejaEntrada, 
-        papelera, login, programarCorreo, Cola, correosPInterfaz, perfilUsuario, ArbolB, verFavoritos, verBorradores, ArbolAVL;
+        papelera, login, programarCorreo, Cola, correosPInterfaz, perfilUsuario, ArbolB, verFavoritos, verBorradores, ArbolAVL, publicarMensaje;
 
     var 
         usuarioWindow: PGtkWidget;
         btnBandeja, btnEnviar, btnPapelera, btnProgramar, btnCorreosP, btnAgregarContactos: PGtkWidget;
-        btnContactos, btnBorradores, btnActualizar, btnReportes, btnLogOut, btnFavoritos: PGtkWidget;
+        btnContactos, btnBorradores, btnActualizar, btnReportes, btnLogOut, btnFavoritos, btnPublicar: PGtkWidget;
 
     procedure papelera(widget: PGtkWidget; data: gpointer); cdecl;
     begin
@@ -30,8 +30,8 @@ implementation
         filesTools.generarReportes('correos', 'Usuarios-Reportes', ListaDoble.generarDotLD(usuarioActual^.correos));
         filesTools.generarReportes('papelera', 'Usuarios-Reportes', Pila.generarDotPila(usuarioActual^.papelera));
         filesTools.generarReportes('correos_programados', 'Usuarios-Reportes', Cola.generarDotCola(usuarioActual^.correosProgramados));
-        filesTools.generarReportes('favoritos', 'Usuarios-Reportes', ArbolB.generarDotFavoritos(raiz));
-        filesTools.generarReportes('Borradores', 'Usuarios-Reportes', ArbolAVL.GenerarDOTInOrden(raizAVL));
+        filesTools.generarReportes('favoritos', 'Usuarios-Reportes', ArbolB.generarDotFavoritos(usuarioActual^.favoritos));
+        filesTools.generarReportes('Borradores', 'Usuarios-Reportes', ArbolAVL.GenerarDOTInOrden(usuarioActual^.borradores));
     end;
 
     procedure bandejaEntrada(widget: PGtkWidget; data: gpointer); cdecl;
@@ -80,6 +80,11 @@ implementation
         showVerBorradoresWindow;
     end;
 
+    procedure publicarMensajeEnComunidad(widget: PGtkWidget; data: gpointer); cdecl;
+    begin
+        showPublicarMensajeWindow;
+    end;
+
     procedure showUsuarioWindow;
 
     var 
@@ -108,6 +113,7 @@ implementation
         btnReportes := gtk_button_new_with_label('Generar Reportes');
         btnLogOut := gtk_button_new_with_label('Cerrar Sesion');
         btnBorradores := gtk_button_new_with_label('Ver Borradores');
+        btnPublicar := gtk_button_new_with_label('Publicar');
 
         g_signal_connect(btnAgregarContactos, 'clicked', G_CALLBACK(@agregarContacto), nil);
         g_signal_connect(btnReportes, 'clicked', G_CALLBACK(@generarReportes), nil);
@@ -121,6 +127,7 @@ implementation
         g_signal_connect(btnActualizar, 'clicked', G_CALLBACK(@verDatosUsuario), nil);
         g_signal_connect(btnFavoritos, 'clicked', G_CALLBACK(@verFavoritos), nil);
         g_signal_connect(btnBorradores, 'clicked', G_CALLBACK(@verBorradores), nil);
+        g_signal_connect(btnPublicar, 'clicked', G_CALLBACK(@publicarMensajeEnComunidad), nil);
 
         gtk_table_attach_defaults(GTK_TABLE(grid), btnBandeja, 0, 1, 0, 1);
         gtk_table_attach_defaults(GTK_TABLE(grid), btnEnviar, 0, 1, 1, 2);
@@ -134,6 +141,7 @@ implementation
         gtk_table_attach_defaults(GTK_TABLE(grid), btnReportes, 0, 1, 9, 10);
         gtk_table_attach_defaults(GTK_TABLE(grid), btnLogOut, 0, 1, 10, 11);
         gtk_table_attach_defaults(GTK_TABLE(grid), btnBorradores, 0, 1, 11, 12);
+        gtk_table_attach_defaults(GTK_TABLE(grid), btnPublicar, 0, 1, 12, 13);
 
         gtk_widget_show_all(usuarioWindow);
 

@@ -5,7 +5,7 @@ unit ListaSimple;
 
 interface 
     uses
-        SysUtils, Classes, InterfaceTools, ArbolB;
+        SysUtils, Classes, InterfaceTools, ArbolB, ArbolAVL;
     type
 
         //Lista circular de contactos
@@ -85,6 +85,7 @@ interface
             correosProgramados: PProgramados;
             favoritos: PNodoB;
             siguiente: PNodo;
+            borradores: PNodoAVL;
         end;
 
     var

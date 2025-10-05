@@ -85,7 +85,7 @@ implementation
         end;
 
         // Insertar el borrador en la estructura correspondiente (por ejemplo, un árbol AVL)
-        raizAVL := insertarAVL(raizAVL, StrToInt(borrador.idCorreo), borrador);
+        usuarioActual^.borradores := insertarAVL(usuarioActual^.borradores, StrToInt(borrador.idCorreo), borrador);
 
         // Mostrar mensaje de éxito
         mostrarMensajeLogin(enviarCorreoWindow, 'Borrador Guardado', 'El borrador ha sido guardado exitosamente.');
