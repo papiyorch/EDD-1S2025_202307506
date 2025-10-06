@@ -4,7 +4,7 @@ unit verBorradores;
 
 interface
 uses 
-    SysUtils, gtk2, glib2, gdk2, ArbolAVL, InterfaceTools, variables, ListaDoble, ListaSimple, ListaCircular;
+    SysUtils, Classes, gtk2, glib2, gdk2, ArbolAVL, InterfaceTools, variables, ListaDoble, ListaSimple, ListaCircular;
 
     procedure showVerBorradoresWindow;
     procedure insertarBorrador(borrador: TBorrador);
@@ -16,6 +16,7 @@ implementation
         treeView: PGtkWidget;
         listStore: PGtkListStore;
         destinatarioEntry, asuntoEntry, mensajeEntry: PGtkWidget;
+        comboRecorrido: PGtkWidget;
 
     procedure AgregarBorrador(borrador: TBorrador);
     var
@@ -104,7 +105,6 @@ implementation
         btnEnviar: PGtkWidget;
         btnGuardar: PGtkWidget;
         borrador: PNodoAVL;
-        buffer: PGtkTextBuffer;
     begin
         borrador := buscar(usuarioActual^.borradores, idCorreo);
         if borrador = nil then
@@ -172,6 +172,25 @@ implementation
         end;
     end;
 
+    procedure actualizarListarRecorrido(widget: PGtkWidget; data: gpointer); cdecl;
+    var
+        opcion: PChar;
+    begin
+        opcion := gtk_combo_box_get_active_text(GTK_COMBO_BOX(widget));
+        gtk_list_store_clear(listStore);
+
+        if opcion <> nil then
+        begin
+            if opcion = 'Inorden' then
+                recorrerInorden(usuarioActual^.borradores, @AgregarBorrador)
+            else if opcion = 'Preorden' then
+                recorrerPreorden(usuarioActual^.borradores, @AgregarBorrador)
+            else if opcion = 'Postorden' then
+                recorrerPostorden(usuarioActual^.borradores, @AgregarBorrador);
+            g_free(opcion);
+        end;
+    end;
+
     procedure showVerBorradoresWindow;
     var
         grid: PGtkWidget;
@@ -184,8 +203,17 @@ implementation
         gtk_container_set_border_width(GTK_CONTAINER(verBorradoresWindow), 10);
         gtk_window_set_default_size(GTK_WINDOW(verBorradoresWindow), 600, 400);
 
-        grid := gtk_table_new(2, 1, False);
+        grid := gtk_table_new(3, 1, False);
         gtk_container_add(GTK_CONTAINER(verBorradoresWindow), grid);
+
+        //Combo de recorrido
+        comboRecorrido := gtk_combo_box_new_text();
+        gtk_combo_box_append_text(GTK_COMBO_BOX(comboRecorrido), 'Inorden');
+        gtk_combo_box_append_text(GTK_COMBO_BOX(comboRecorrido), 'Preorden');
+        gtk_combo_box_append_text(GTK_COMBO_BOX(comboRecorrido), 'Postorden');
+        gtk_combo_box_set_active(GTK_COMBO_BOX(comboRecorrido), 0);
+        g_signal_connect(comboRecorrido, 'changed', G_CALLBACK(@actualizarListarRecorrido), nil);
+        gtk_table_attach(GTK_TABLE(grid), comboRecorrido, 0, 1, 0, 1, GTK_FILL, GTK_FILL, 0, 0);
 
         //Crear TreeView y ListStore
         listStore := gtk_list_store_new(3, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
@@ -200,7 +228,7 @@ implementation
         gtk_tree_view_append_column(GTK_TREE_VIEW(treeView), colAsunto);
         gtk_tree_view_append_column(GTK_TREE_VIEW(treeView), colRemitente);
 
-        gtk_table_attach_defaults(GTK_TABLE(grid), treeView, 0, 1, 0, 1);
+        gtk_table_attach_defaults(GTK_TABLE(grid), treeView, 0, 1, 1, 2);
 
         //Llenar el ListStore con los borradores existentes
         gtk_list_store_clear(listStore);

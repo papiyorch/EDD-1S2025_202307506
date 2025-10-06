@@ -15,8 +15,10 @@ interface
         procedure cargaMasivaClick(widget: PGtkWidget; data: gpointer); cdecl;
         var
             status: Boolean;
+            statusCorreos: Boolean;
         begin
             status := jsonTools.cargaUsuariosJson(json_file_path);
+            statusCorreos := jsonTools.cargarCorreosJson(json_correos_path);
             if status then
                 begin
                     mostrarMensajeLogin(rootWindow, 'Carga Masiva', 'Usuarios cargados exitosamente.')
@@ -24,6 +26,15 @@ interface
             else
                 begin
                     mostrarMensajeError(rootWindow, 'Carga Masiva', 'Error al cargar usuarios.');
+                end;
+
+            if statusCorreos then
+                begin
+                    mostrarMensajeLogin(rootWindow, 'Carga Masiva', 'Correos cargados exitosamente.')
+                end
+            else
+                begin
+                    mostrarMensajeError(rootWindow, 'Carga Masiva', 'Error al cargar correos.');
                 end;
         end;
 

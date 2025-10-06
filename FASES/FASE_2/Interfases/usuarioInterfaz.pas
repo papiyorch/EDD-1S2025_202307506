@@ -107,7 +107,7 @@ implementation
         btnProgramar := gtk_button_new_with_label('Programar Correo');
         btnCorreosP := gtk_button_new_with_label('Correos Programados');
         btnFavoritos := gtk_button_new_with_label('Ver Favoritos');
-        btnAgregarContactos := gtk_button_new_with_label('Agregar Contactos');
+        btnAgregarContactos := gtk_button_new_with_label('Agregar/Eliminar Contactos');
         btnContactos := gtk_button_new_with_label('Ver Contactos');
         btnActualizar := gtk_button_new_with_label('Actualizar Datos');
         btnReportes := gtk_button_new_with_label('Generar Reportes');

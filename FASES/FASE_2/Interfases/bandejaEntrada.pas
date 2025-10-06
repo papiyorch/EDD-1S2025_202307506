@@ -40,6 +40,32 @@ implementation
             imprimirPila(usuarioActual^.papelera);
         end;
 
+    function contarCorreosNoLeidos(lista: PCorreo): Integer;
+        var
+            actual: PCorreo;
+            contador: Integer;
+        begin
+            actual := lista;
+            contador := 0;
+            while actual <> nil do
+            begin
+                if actual^.estado = 'NL' then
+                    Inc(contador);
+                actual := actual^.siguiente;
+            end;
+            Result := contador;
+        end;
+
+    procedure actualizarContadorNoLeidos(labelNoLeidos: PGtkWidget);
+    var
+        cantidadNoLeidos: Integer;
+        labelTexto: String;
+    begin
+        cantidadNoLeidos := contarCorreosNoLeidos(usuarioActual^.correos);
+        labelTexto := Format('No Leídos: %d', [cantidadNoLeidos]);
+        gtk_label_set_text(GTK_LABEL(labelNoLeidos), PChar(labelTexto));
+    end;
+
     procedure agregarAFavoritos(widget: PGtkWidget; data: gpointer); cdecl;
     var
         correo : PCorreo;
@@ -126,6 +152,7 @@ implementation
         actual: PCorreo;
         iter: TGtkTreeIter;
         colRemitente, colAsunto, colEstado: PGtkTreeViewColumn;
+        labelNoLeidos: PGtkWidget;
     begin
         gtk_init(@argc, @argv);
         bandejaEntradaWindow := gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -133,14 +160,19 @@ implementation
         gtk_container_set_border_width(GTK_CONTAINER(bandejaEntradaWindow), 10);
         gtk_window_set_default_size(GTK_WINDOW(bandejaEntradaWindow), 600, 400);
 
-        grid := gtk_table_new(1, 1, False);
+        grid := gtk_table_new(2, 1, False);
         gtk_container_add(GTK_CONTAINER(bandejaEntradaWindow), grid);
 
-    // Crear el modelo y el treeView
+        // Etiqueta para correos no leídos
+        labelNoLeidos := gtk_label_new('No Leídos: 0');
+        actualizarContadorNoLeidos(labelNoLeidos);
+        gtk_table_attach(GTK_TABLE(grid), labelNoLeidos, 0, 1, 0, 1, GTK_FILL, GTK_FILL, 0, 0);
+
+        // Crear el modelo y el treeView
         listStore := gtk_list_store_new(3, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
         treeView := gtk_tree_view_new_with_model(GTK_TREE_MODEL(listStore));
 
-    // Crear y agregar columnas al treeView
+        // Crear y agregar columnas al treeView
         colEstado := gtk_tree_view_column_new_with_attributes('Estado', gtk_cell_renderer_text_new(), 'text', 0, nil);
         colAsunto := gtk_tree_view_column_new_with_attributes('Asunto', gtk_cell_renderer_text_new(), 'text', 1, nil);
         colRemitente := gtk_tree_view_column_new_with_attributes('Remitente', gtk_cell_renderer_text_new(), 'text', 2, nil);
@@ -150,7 +182,7 @@ implementation
         gtk_tree_view_append_column(GTK_TREE_VIEW(treeView), colRemitente);
 
     // Agregar solo el treeView a la tabla
-        gtk_table_attach_defaults(GTK_TABLE(grid), treeView, 0, 1, 0, 1);
+        gtk_table_attach_defaults(GTK_TABLE(grid), treeView, 0, 1, 1, 2);
 
         //Datos
         actual := usuarioActual^.correos;

@@ -12,6 +12,7 @@ interface
     function obtenerContactoPorID(lista: PContacto; id: string): TDatos;
     function existeContacto(lista: PContacto; email: string): Boolean;
     function buscarUsuarioPorEmail(listaUsuarios: PNodo; email: String): PNodo;
+    procedure eliminarCircular(var lista: PContacto; email: string);
 
 implementation
 
@@ -41,6 +42,58 @@ implementation
             temp^.siguiente := nuevoNodo;
             nuevoNodo^.siguiente := lista;
         end;
+    end;
+
+    procedure eliminarCircular(var lista: PContacto; email: string);
+    var
+        actual, anterior: PContacto;
+        encontrado: Boolean;
+    begin
+        if lista = nil then
+            Exit; // Lista vacía, no hay nada que eliminar
+
+        actual := lista;
+        anterior := nil;
+        encontrado := False;
+
+        repeat
+            if actual^.email = email then
+            begin
+                encontrado := True;
+                if actual = lista then
+                begin
+                    // Caso especial: eliminar el primer nodo
+                    if actual^.siguiente = lista then
+                    begin
+                        // Solo hay un nodo en la lista
+                        Dispose(actual);
+                        lista := nil;
+                    end
+                    else
+                    begin
+                        // Más de un nodo, actualizar el inicio
+                        anterior := lista;
+                        while anterior^.siguiente <> lista do
+                            anterior := anterior^.siguiente;
+                        anterior^.siguiente := actual^.siguiente;
+                        lista := actual^.siguiente;
+                        Dispose(actual);
+                    end;
+                end
+                else
+                begin
+                    // Nodo intermedio o final
+                    anterior^.siguiente := actual^.siguiente;
+                    Dispose(actual);
+                end;
+                Break;
+            end;
+            anterior := actual;
+            actual := actual^.siguiente;
+        until actual = lista;
+
+        if not encontrado then
+            WriteLn('Contacto no encontrado.');
     end;
 
     function EscapeDotString(const S: string): string;

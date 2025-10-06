@@ -32,6 +32,8 @@ interface
     function eliminar(var raiz: PNodoAVL; clave: Integer): PNodoAVL;
     procedure recorrerInorden(nodo: PNodoAVL; procesar: TProcesarBorrador);
     function GenerarDOTInOrden(raiz: PNodoAVL): string;
+    procedure recorrerPostorden(nodo: PNodoAVL; procesar: TProcesarBorrador);
+    procedure recorrerPreorden(nodo: PNodoAVL; procesar: TProcesarBorrador);
 
     implementation
 
@@ -291,6 +293,26 @@ interface
             recorrerInorden(nodo^.izquierdo, procesar);
             procesar(nodo^.valor); // Llamar al procedimiento auxiliar
             recorrerInorden(nodo^.derecho, procesar);
+        end;
+    end;
+
+    procedure recorrerPreorden(nodo: PNodoAVL; procesar: TProcesarBorrador);
+    begin
+        if nodo <> nil then
+        begin
+            procesar(nodo^.valor); // Llamar al procedimiento auxiliar
+            recorrerPreorden(nodo^.izquierdo, procesar);
+            recorrerPreorden(nodo^.derecho, procesar);
+        end;
+    end;
+
+    procedure recorrerPostorden(nodo: PNodoAVL; procesar: TProcesarBorrador);
+    begin
+        if nodo <> nil then
+        begin
+            recorrerPostorden(nodo^.izquierdo, procesar);
+            recorrerPostorden(nodo^.derecho, procesar);
+            procesar(nodo^.valor); // Llamar al procedimiento auxiliar
         end;
     end;
 

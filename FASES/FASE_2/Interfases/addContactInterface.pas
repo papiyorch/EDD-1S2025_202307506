@@ -32,11 +32,35 @@ implementation
         showUsuarioWindow
     end;
 
+    procedure eliminarContacto(widget: PGtkWidget; data: gpointer); cdecl;
+    var
+        emailBuscado: String;
+    begin
+        emailBuscado := Trim(gtk_entry_get_text(GTK_ENTRY(entryMail)));
+        if usuarioActual^.contactos = nil then
+        begin
+            mostrarMensajeError(addContactWindow, 'Error', 'No tienes contactos para eliminar.');
+            Exit;
+        end;
+
+        if not existeContacto(usuarioActual^.contactos, emailBuscado) then
+        begin
+            mostrarMensajeError(addContactWindow, 'Error', 'El contacto no existe en tu lista.');
+            Exit;
+        end;
+
+        eliminarCircular(usuarioActual^.contactos, emailBuscado);
+        mostrarMensajeLogin(addContactWindow, 'Contacto eliminado', 'El contacto ha sido eliminado exitosamente.');
+        gtk_widget_destroy(addContactWindow);
+        showUsuarioWindow
+    end;
+
     procedure showAddContactWindow;
 
     var
         grid: PGtkWidget;
         btnAgregar: PGtkWidget;
+        btnEliminar: PGtkWidget;
 
     begin
         gtk_init(@argc, @argv);
@@ -57,6 +81,10 @@ implementation
         btnAgregar := gtk_button_new_with_label('Agregar');
         g_signal_connect(btnAgregar, 'clicked', G_CALLBACK(@guardarContacto), nil);
         gtk_table_attach_defaults(GTK_TABLE(grid), btnAgregar, 0, 2, 1, 2);
+
+        btnEliminar := gtk_button_new_with_label('Eliminar');
+        g_signal_connect(btnEliminar, 'clicked', G_CALLBACK(@eliminarContacto), nil);
+        gtk_table_attach_defaults(GTK_TABLE(grid), btnEliminar, 0, 2, 2, 3);
 
         gtk_widget_show_all(addContactWindow);
 

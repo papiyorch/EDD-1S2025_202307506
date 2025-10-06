@@ -10,7 +10,8 @@ var
     usuarioActual: PNodo;
 
     //Archivos json
-    json_file_path: String = '/home/jorge/Descargas/EDD-1S2025_202307506/FASES/FASE_1/JSON/usuarios.json';
+    json_file_path: String = '/home/jorge/Descargas/EDD-1S2025_202307506/FASES/FASE_2/JSON/usuarios.json';
+    json_correos_path: String = '/home/jorge/Descargas/EDD-1S2025_202307506/FASES/FASE_2/JSON/emails.json';
 
     //Root User
     const
