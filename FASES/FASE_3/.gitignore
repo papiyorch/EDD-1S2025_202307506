@@ -1,0 +1,4 @@
+# Ignorar todos los archivos con extensión .o y .ppu
+*.o
+*.ppu
+*.json

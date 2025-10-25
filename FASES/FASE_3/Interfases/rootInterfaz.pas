@@ -6,11 +6,11 @@ interface
     implementation
 
         uses
-            gtk2, glib2, gdk2, login, InterfaceTools, ListaSimple, variables, jsonTools, filesTools, comunidades, listaDeLista, AbolBST, verMensajesComunidad;
+            gtk2, glib2, gdk2, login, InterfaceTools, ListaSimple, variables, jsonTools, filesTools, comunidades, listaDeLista, AbolBST, verMensajesComunidad, controlLogueo;
 
         var
             rootWindow: PGtkWidget;
-            botonCrearUser, botonReportes, botonCargaMasiva, btnComunidades, btnMensajesComunidad, botonSalir: PGtkWidget;
+            botonCrearUser, botonReportes, botonCargaMasiva, btnComunidades, btnMensajesComunidad, btnControlLogueo, botonSalir: PGtkWidget;
 
         procedure cargaMasivaClick(widget: PGtkWidget; data: gpointer); cdecl;
         var
@@ -55,6 +55,11 @@ interface
             showMensajesComunidadWindow;
         end;
 
+        procedure mostrarVentanaControlLogueo(widget: PGtkWidget; data: gpointer); cdecl;
+        begin
+            showControlLogueoWindow;
+        end;
+
         procedure cerrarSesion(widget: PGtkWidget; data: gpointer); cdecl;
         begin
             gtk_widget_destroy(rootWindow);
@@ -73,7 +78,7 @@ interface
                 gtk_container_set_border_width(GTK_CONTAINER(rootWindow), 10);
                 gtk_window_set_default_size(GTK_WINDOW(rootWindow), 800, 600);
 
-                grid := gtk_table_new(6, 1, False);
+                grid := gtk_table_new(7, 1, False);
                 gtk_container_add(GTK_CONTAINER(rootWindow), grid);
 
                 botonCrearUser := gtk_button_new_with_label('Reporte de Relaciones');
@@ -81,6 +86,7 @@ interface
                 botonCargaMasiva := gtk_button_new_with_label('Carga Masiva');
                 btnComunidades := gtk_button_new_with_label('Comunidades');
                 btnMensajesComunidad := gtk_button_new_with_label('Mensajes Comunidad');
+                btnControlLogueo := gtk_button_new_with_label('Control de Logueo');
                 botonSalir := gtk_button_new_with_label('Cerrar Sesion');
 
                 g_signal_connect(botonCargaMasiva, 'clicked', G_CALLBACK(@cargaMasivaClick), nil);
@@ -88,13 +94,15 @@ interface
                 g_signal_connect(botonSalir, 'clicked', G_CALLBACK(@cerrarSesion), nil);
                 g_signal_connect(btnComunidades, 'clicked', G_CALLBACK(@mostrarComunidadesClick), nil);
                 g_signal_connect(btnMensajesComunidad, 'clicked', G_CALLBACK(@mostrarMensajesComunidadClick), nil);
+                g_signal_connect(btnControlLogueo, 'clicked', G_CALLBACK(@mostrarVentanaControlLogueo), nil);
 
                 gtk_table_attach_defaults(GTK_TABLE(grid), botonCrearUser, 0, 1, 0, 1);
                 gtk_table_attach_defaults(GTK_TABLE(grid), botonReportes, 0, 1, 1, 2);
                 gtk_table_attach_defaults(GTK_TABLE(grid), botonCargaMasiva, 0, 1, 2, 3);
                 gtk_table_attach_defaults(GTK_TABLE(grid), btnComunidades, 0, 1, 3, 4);
                 gtk_table_attach_defaults(GTK_TABLE(grid), btnMensajesComunidad, 0, 1, 4, 5);
-                gtk_table_attach_defaults(GTK_TABLE(grid), botonSalir, 0, 1, 5, 6);
+                gtk_table_attach_defaults(GTK_TABLE(grid), btnControlLogueo, 0, 1, 5, 6);
+                gtk_table_attach_defaults(GTK_TABLE(grid), botonSalir, 0, 1, 6, 7);
 
                 gtk_widget_show_all(rootWindow);
                 g_signal_connect(rootWindow, 'destroy', G_CALLBACK(@gtk_main_quit), nil);

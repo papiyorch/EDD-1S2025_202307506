@@ -51,6 +51,7 @@ implementation
 
     procedure cerrarSesionUsuario(widget: PGtkWidget; data: gpointer); cdecl;
     begin
+        RegistrarSalida(usuarioActual^.usuario);
         gtk_widget_destroy(usuarioWindow);
         ventanaLogin;
     end;

@@ -5,8 +5,17 @@ unit ListaSimple;
 
 interface 
     uses
-        SysUtils, Classes, InterfaceTools, ArbolB, ArbolAVL;
+        SysUtils, Classes, InterfaceTools, ArbolB, ArbolAVL, fpjson, jsonparser;
     type
+
+        //Lista para el control de logueo
+        PLogueo = ^TLogueo;
+        TLogueo = record
+            usuario: String;
+            horaEntrada: TDateTime;
+            horaSalida: TDateTime;
+            siguiente: PLogueo;
+        end;
 
         //Lista circular de contactos
         PContacto = ^TContacto;
@@ -90,6 +99,7 @@ interface
 
     var
         listaUsuarios: PNodo = nil;
+        cabezaLogueo: PLogueo = nil;
 
     procedure Insertar(id, nombre, usuario, email, telefono, password: String);
     procedure imprimir;
@@ -97,6 +107,9 @@ interface
     function validarCredenciales(email, password: string): boolean;
     function buscarPorEmail(const email: string): TDatos;
     function obtenerNodoPorEmail(const email: string): PNodo;
+    procedure RegistrarEntrada(const usuario: String);
+    procedure RegistrarSalida(const usuario: String);
+    procedure generarJsonLogueo(const filename: string);
 
 implementation
     var
@@ -268,6 +281,7 @@ implementation
             if (actualNodo^.email = Trim(email)) and (actualNodo^.password = Trim(password)) then
             begin
                 validarCredenciales := True;
+                RegistrarEntrada(actualNodo^.usuario);
                 Break;
             end;
             actualNodo := actualNodo^.siguiente;
@@ -321,5 +335,71 @@ implementation
             end;
             actualNodo := actualNodo^.siguiente;
         end;
+    end;
+
+    procedure RegistrarEntrada(const usuario: String);
+    var
+        nuevoLogueo: PLogueo;
+        temp: PLogueo;
+    begin
+        New(nuevoLogueo);
+        nuevoLogueo^.usuario := Trim(usuario);
+        nuevoLogueo^.horaEntrada := Now;
+        nuevoLogueo^.horaSalida := 0; // Indica que aún no ha salido
+        nuevoLogueo^.siguiente := nil;
+
+        if cabezaLogueo = nil then
+            cabezaLogueo := nuevoLogueo
+        else
+        begin
+            temp := cabezaLogueo;
+            while temp^.siguiente <> nil do
+                temp := temp^.siguiente;
+            temp^.siguiente := nuevoLogueo;
+        end;
+    end;
+
+    procedure RegistrarSalida(const usuario: String);
+    var
+        temp: PLogueo;
+    begin
+        temp := cabezaLogueo;
+        while temp <> nil do
+        begin
+            if (temp^.usuario = Trim(usuario)) and (temp^.horaSalida = 0) then
+            begin
+                temp^.horaSalida := Now;
+                Exit;
+            end;
+            temp := temp^.siguiente;
+        end;
+    end;
+
+    procedure generarJsonLogueo(const filename: string);
+    var
+        jsonArray: TJSONArray;
+        temp: PLogueo;
+        jsonObject: TJSONObject;
+        jsonData: TStringList;
+    begin
+        jsonArray := TJSONArray.Create;
+        temp := cabezaLogueo;
+        while temp <> nil do
+        begin
+            jsonObject := TJSONObject.Create;
+            jsonObject.Add('usuario', temp^.usuario);
+            jsonObject.Add('horaEntrada', DateTimeToStr(temp^.horaEntrada));
+            if temp^.horaSalida <> 0 then
+                jsonObject.Add('horaSalida', DateTimeToStr(temp^.horaSalida))
+            else
+                jsonObject.Add('horaSalida', 'N/A');
+            jsonArray.Add(jsonObject);
+            temp := temp^.siguiente;
+        end;
+        jsonData := TStringList.Create;
+        jsonData.Text := jsonArray.FormatJSON;
+        jsonData.SaveToFile(filename);
+        jsonData.Free;
+        jsonArray.Free;
     end;
 end.
