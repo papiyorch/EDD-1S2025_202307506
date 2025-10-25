@@ -1,0 +1,84 @@
+{
+"usuarios": [
+    {
+      "id": 1,
+      "nombre": "Luis Garcia",
+      "usuario": "auxluis",
+      "password": "auxluis123",
+      "email": "aux-luis@edd.com",
+      "telefono": "12345678"
+    },
+    {
+      "id": 2,
+      "nombre": "Marcos Itzep",
+      "usuario": "auxmarcos",
+      "password": "auxmarcos123",
+      "email": "aux-marcosg@edd.com",
+      "telefono": "87654321"
+    },
+    {
+      "id": 3,
+      "nombre": "Steven Mejia",
+      "usuario": "smejia",
+      "password": "sm123",
+      "email": "smejia@edd.com",
+      "telefono": "1234123"
+    },
+    {
+      "id": 4,
+      "nombre": "Linus Torvalds",
+      "usuario": "linus",
+      "password": "linux2025!",
+      "email": "linus@edd.com",
+      "telefono": "30012345"
+    },
+    {
+      "id": 5,
+      "nombre": "Bill Gates",
+      "usuario": "bgates",
+      "password": "gatesMS#1",
+      "email": "bill@edd.com",
+      "telefono": "30054321"
+    },
+    {
+      "id": 6,
+      "nombre": "Satya Nadella",
+      "usuario": "snadella",
+      "password": "satya_n$23",
+      "email": "satya@edd.com",
+      "telefono": "30111222"
+    },
+    {
+      "id": 7,
+      "nombre": "Grace Hopper",
+      "usuario": "ghopper",
+      "password": "hopper@1906",
+      "email": "grace@edd.com",
+      "telefono": "30133445"
+    },
+    {
+      "id": 8,
+      "nombre": "Alan Turing",
+      "usuario": "aturing",
+      "password": "turing_42",
+      "email": "alan@edd.com",
+      "telefono": "30255667"
+    },
+    {
+      "id": 9,
+      "nombre": "Ada Lovelace",
+      "usuario": "alovelace",
+      "password": "ada1823!",
+      "email": "ada@edd.com",
+      "telefono": "30277889"
+    },
+    {
+      "id": 10,
+      "nombre": "Richard Stallman",
+      "usuario": "rms",
+      "password": "rms_gnu!",
+      "email": "rms@edd.com",
+      "telefono": "30399000"
+    }
+  ]
+}
