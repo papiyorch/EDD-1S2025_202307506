@@ -7,7 +7,7 @@ interface
 
 implementation
     uses
-        SysUtils, gtk2, glib2, gdk2, variables, InterfaceTools, ListaDoble, ListaSimple, Pila, ArbolB, verFavoritos;
+        SysUtils, gtk2, glib2, gdk2, variables, InterfaceTools, ListaDoble, ListaSimple, Pila, ArbolB, verFavoritos, compressionTools;
 
     var
         bandejaEntradaWindow, detalleWindow: PGtkWidget;
@@ -86,16 +86,36 @@ implementation
         gtk_widget_destroy(detalleWindow);
         end;
 
+    procedure descargarCorreo(widget: PGtkWidget; data: gpointer); cdecl;
+    var
+        correo: PCorreo;
+        contenidoComprimido: string;
+        nombreArchivo: string;
+    begin
+        correo := PCorreo(data);
+
+        contenidoComprimido := LZWCompress(correo^.mensaje);
+
+        if correo^.idCorreo <> '' then
+            nombreArchivo := Format('%s_comprimido.txt', [correo^.idCorreo])
+        else
+            nombreArchivo := 'correo_comprimido.txt';
+
+
+        GuardarArchivo(nombreArchivo, contenidoComprimido);
+        mostrarMensajeLogin(bandejaEntradaWindow, 'Descargar Correo', 'Correo descargado como ' + nombreArchivo);
+    end;
+
     procedure mostrarDetalleCorreo(correo: PCorreo);
         var
-            grid, btnEliminar, btnFavoritos: PGtkWidget;
+            grid, btnEliminar, btnFavoritos, btnDescargar: PGtkWidget;
         begin
             detalleWindow := gtk_window_new(GTK_WINDOW_TOPLEVEL);
             gtk_window_set_title(GTK_WINDOW(detalleWindow), 'Detalle del Correo');
             gtk_container_set_border_width(GTK_CONTAINER(detalleWindow), 10);
             gtk_window_set_default_size(GTK_WINDOW(detalleWindow), 400, 300);
 
-            grid := gtk_table_new(5, 2, False);
+            grid := gtk_table_new(6, 2, False);
             gtk_container_add(GTK_CONTAINER(detalleWindow), grid);
 
             gtk_table_attach_defaults(GTK_TABLE(grid), gtk_label_new('Remitente:'), 0, 1, 0, 1);
@@ -114,6 +134,10 @@ implementation
             btnFavoritos := gtk_button_new_with_label('Favoritos');
             g_signal_connect(btnFavoritos, 'clicked', G_CALLBACK(@agregarAFavoritos), correo);
             gtk_table_attach_defaults(GTK_TABLE(grid), btnFavoritos, 0, 2, 5, 6);
+
+            btnDescargar := gtk_button_new_with_label('Descargar');
+            g_signal_connect(btnDescargar, 'clicked', G_CALLBACK(@descargarCorreo), correo);
+            gtk_table_attach_defaults(GTK_TABLE(grid), btnDescargar, 0, 2, 6, 7);
 
             gtk_widget_show_all(detalleWindow);
         end;
