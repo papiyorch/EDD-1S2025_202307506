@@ -6,7 +6,7 @@ interface
     implementation
 
         uses
-            gtk2, glib2, gdk2, login, InterfaceTools, ListaSimple, variables, jsonTools, filesTools, comunidades, listaDeLista, AbolBST, verMensajesComunidad, controlLogueo, blockchainCorreos;
+            gtk2, glib2, gdk2, login, InterfaceTools, grafoContactos, ListaSimple, variables, jsonTools, filesTools, comunidades, listaDeLista, AbolBST, verMensajesComunidad, controlLogueo, blockchainCorreos;
 
         var
             rootWindow: PGtkWidget;
@@ -16,9 +16,11 @@ interface
         var
             status: Boolean;
             statusCorreos: Boolean;
+            statusContactos: Boolean;
         begin
             status := jsonTools.cargaUsuariosJson(json_file_path);
             statusCorreos := jsonTools.cargarCorreosJson(json_correos_path);
+            statusContactos := jsonTools.cargarContactosJson(json_contactos_path);
             if status then
                 begin
                     mostrarMensajeLogin(rootWindow, 'Carga Masiva', 'Usuarios cargados exitosamente.')
@@ -36,6 +38,14 @@ interface
                 begin
                     mostrarMensajeError(rootWindow, 'Carga Masiva', 'Error al cargar correos.');
                 end;
+            if statusContactos then
+                begin
+                    mostrarMensajeLogin(rootWindow, 'Carga Masiva', 'Contactos cargados exitosamente.')
+                end
+            else
+                begin
+                    mostrarMensajeError(rootWindow, 'Carga Masiva', 'Error al cargar contactos.');  
+                end;
         end;
 
         procedure generarReportesClick(widget: PGtkWidget; data: gpointer); cdecl;
@@ -44,6 +54,7 @@ interface
             filesTools.generarReportes('comunidades', 'Root-Reportes', listaDeLista.generarDotListaDeLista(listaComunidades));
             filesTools.generarReportes('ArbolBST', 'Root-Reportes', AbolBST.generarDOTBST(raiz));
             filesTools.generarReportes('Blockchain', 'Root-Reportes', BlockchainCorreosGlobal.ExportToDot);
+            filesTools.generarReportes('GrafoContactos', 'Root-Reportes', grafoContactos.generarGrafoContactos);
         end;
 
         procedure mostrarComunidadesClick(widget: PGtkWidget; data: gpointer); cdecl;

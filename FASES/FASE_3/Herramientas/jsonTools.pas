@@ -8,11 +8,14 @@ interface
 
     var
         contadorCorreos : Integer = 0;
+        contadorContactos : Integer = 0;
 
     function cargaUsuariosJson(const filePath: String): Boolean;
     function agregarUsuarioJson(const filePath: String; const id: Integer; const nombre, usuario, email, telefono, password: String): Boolean;
     function cargarCorreosJson(const filePath: String): Boolean;
     function agregarCorreoJson(const filePath: String; id: Integer; remitente, destinatario, estado, asunto, mensaje: String; programado: Boolean; fecha: TDateTime): Boolean;
+    function cargarContactosJson(const filePath: String): Boolean;
+    function agregarContactoJson(const filePath: String; const propietario, contacto: String): Boolean;
 
 implementation
     uses
@@ -279,4 +282,186 @@ implementation
         else
             WriteLn('Destinatario no encontrado: ', destinatario);
     end;
+
+    function buscarUsuarioPorUsuario(listaUsuarios: PNodo; usuario: String): PNodo;
+    var
+        actual: PNodo;
+    begin
+        actual := listaUsuarios;
+        while (actual <> nil) do
+        begin
+            if actual^.usuario = usuario then
+            Exit(actual);
+            actual := actual^.siguiente;
+        end;
+        Result := nil;
+    end;
+
+    function cargarContactosJson(const filePath: String): Boolean;
+    var
+        jsonData: TJSONData;
+        jsonObject: TJSONObject;
+        contactosArray: TJSONArray;
+        contactoItem: TJSONObject;
+        contactosList: TJSONArray;
+        i, j: Integer;
+        fileStream: TFileStream;
+        usuarioPropietario, usuarioContacto: PNodo;
+        nombreContacto: String;
+    begin
+        cargarContactosJson := False;
+
+        if not FileExists(filePath) then
+        begin
+            WriteLn('El archivo no existe: ', filePath);
+            Exit;
+        end;
+
+        try
+            fileStream := TFileStream.Create(filePath, fmOpenRead);
+            try
+            jsonData := GetJSON(fileStream);
+            finally
+            fileStream.Free;
+            end;
+
+            jsonObject := TJSONObject(jsonData);
+            contactosArray := jsonObject.Arrays['Contactos'];
+
+            for i := 0 to contactosArray.Count - 1 do
+            begin
+            contactoItem := contactosArray.Objects[i];
+            usuarioPropietario := buscarUsuarioPorUsuario(listaUsuarios, contactoItem.Strings['usuario']);
+
+            if usuarioPropietario = nil then
+            begin
+                WriteLn('Usuario propietario no encontrado: ', contactoItem.Strings['usuario']);
+                Continue;
+            end;
+
+            contactosList := contactoItem.Arrays['contactos'];
+
+            for j := 0 to contactosList.Count - 1 do
+            begin
+                nombreContacto := contactosList.Strings[j];
+                usuarioContacto := buscarUsuarioPorUsuario(listaUsuarios, nombreContacto);
+
+                if usuarioContacto = nil then
+                begin
+                WriteLn('Usuario contacto no encontrado: ', nombreContacto);
+                Continue;
+                end;
+
+                if not existeContacto(usuarioPropietario^.contactos, usuarioContacto^.usuario) then
+                begin
+                InsertarCircular(
+                    usuarioPropietario^.contactos,
+                    IntToStr(contadorContactos + 1),
+                    usuarioContacto^.nombre,
+                    usuarioContacto^.usuario,
+                    usuarioContacto^.email,
+                    usuarioContacto^.telefono
+                );
+                Inc(contadorContactos);
+                end;
+            end;
+            end;
+
+            jsonData.Free;
+            cargarContactosJson := True;
+        except
+            on E: Exception do
+            WriteLn('Error al cargar contactos desde JSON: ', E.Message);
+        end;
+    end;
+
+    function agregarContactoJson(const filePath: String; const propietario, contacto: String): Boolean;
+    var
+        jsonData: TJSONData = nil;
+        jsonObject: TJSONObject = nil;
+        contactosArray: TJSONArray = nil;
+        propietarioItem: TJSONObject = nil;
+        contactosList: TJSONArray = nil;
+        usuarioPropietario, usuarioContacto: PNodo;
+        i: Integer;
+        jsonString: TStringList;
+    begin
+        Result := False;
+
+        usuarioPropietario := buscarUsuarioPorUsuario(listaUsuarios, propietario);
+        usuarioContacto := buscarUsuarioPorUsuario(listaUsuarios, contacto);
+
+        if (usuarioPropietario = nil) or (usuarioContacto = nil) then
+        begin
+            WriteLn('Error: Propietario o contacto no existe en la lista de usuarios.');
+            Exit;
+        end;
+
+        if FileExists(filePath) then
+        begin
+            jsonData := GetJSON(filePath);
+            jsonObject := TJSONObject(jsonData);
+            contactosArray := jsonObject.Arrays['Contactos'];
+        end
+        else
+        begin
+            jsonObject := TJSONObject.Create;
+            contactosArray := TJSONArray.Create;
+            jsonObject.Add('Contactos', contactosArray);
+        end;
+
+        propietarioItem := nil;
+        for i := 0 to contactosArray.Count - 1 do
+        begin
+            if contactosArray.Objects[i].Strings['usuario'] = propietario then
+            begin
+            propietarioItem := contactosArray.Objects[i];
+            Break;
+            end;
+        end;
+
+        if propietarioItem = nil then
+        begin
+            propietarioItem := TJSONObject.Create;
+            propietarioItem.Add('usuario', propietario);
+            contactosList := TJSONArray.Create;
+            propietarioItem.Add('contactos', contactosList);
+            contactosArray.Add(propietarioItem);
+        end
+        else
+            contactosList := propietarioItem.Arrays['contactos'];
+
+        for i := 0 to contactosList.Count - 1 do
+            if contactosList.Strings[i] = contacto then
+            Exit;
+
+        contactosList.Add(contacto);
+
+        jsonString := TStringList.Create;
+        try
+            jsonString.Text := jsonObject.FormatJSON();
+            jsonString.SaveToFile(filePath);
+            Result := True;
+        finally
+            jsonString.Free;
+            if Assigned(jsonData) then
+            jsonData.Free
+            else
+            jsonObject.Free;
+        end;
+
+        if not existeContacto(usuarioPropietario^.contactos, usuarioContacto^.usuario) then
+        begin
+            InsertarCircular(
+            usuarioPropietario^.contactos,
+            IntToStr(contadorContactos + 1),
+            usuarioContacto^.nombre,
+            usuarioContacto^.usuario,
+            usuarioContacto^.email,
+            usuarioContacto^.telefono
+            );
+            Inc(contadorContactos);
+        end;
+    end;
+
 end.
