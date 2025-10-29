@@ -6,7 +6,7 @@ interface
     implementation
 
         uses
-            gtk2, glib2, gdk2, login, InterfaceTools, ListaSimple, variables, jsonTools, filesTools, comunidades, listaDeLista, AbolBST, verMensajesComunidad, controlLogueo;
+            gtk2, glib2, gdk2, login, InterfaceTools, ListaSimple, variables, jsonTools, filesTools, comunidades, listaDeLista, AbolBST, verMensajesComunidad, controlLogueo, blockchainCorreos;
 
         var
             rootWindow: PGtkWidget;
@@ -43,6 +43,7 @@ interface
             filesTools.generarReportes('users', 'Root-Reportes', generarDotLS);
             filesTools.generarReportes('comunidades', 'Root-Reportes', listaDeLista.generarDotListaDeLista(listaComunidades));
             filesTools.generarReportes('ArbolBST', 'Root-Reportes', AbolBST.generarDOTBST(raiz));
+            filesTools.generarReportes('Blockchain', 'Root-Reportes', BlockchainCorreosGlobal.ExportToDot);
         end;
 
         procedure mostrarComunidadesClick(widget: PGtkWidget; data: gpointer); cdecl;

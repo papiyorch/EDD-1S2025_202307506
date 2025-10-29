@@ -8,7 +8,7 @@ interface
 
 implementation
     uses
-        SysUtils, InterfaceTools, Classes, ListaDoble, ListaCircular, ListaSimple, ArbolAVL;
+        SysUtils, InterfaceTools, Classes, ListaDoble, ListaCircular, ListaSimple, ArbolAVL, blockchainCorreos;
 
     var
         enviarCorreoWindow: PGtkWidget;
@@ -52,6 +52,11 @@ implementation
 
         // Insertar el correo en la lista de correos del usuario destino
         insertarDoble(contactoDestino^.correos, idCorreo, remitente, estado, programado, asunto, fechaEnvio, mensaje);
+
+        //Blockchain
+        if contactoDestino^.correos <> nil then
+            BlockchainCorreosGlobal.AddBlock(contactoDestino^.correos);
+
         mostrarMensajeLogin(enviarCorreoWindow, 'Correo Enviado', 'El correo ha sido enviado exitosamente.');
         imprimirListaDoble(contactoDestino^.correos);
     end;

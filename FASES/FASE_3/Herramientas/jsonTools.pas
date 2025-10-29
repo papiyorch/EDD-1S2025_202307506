@@ -4,7 +4,7 @@ unit jsonTools;
 
 interface
     uses 
-        ListaSimple, ListaDoble, ListaCircular;
+        ListaSimple, ListaDoble, ListaCircular, blockchainCorreos;
 
     var
         contadorCorreos : Integer = 0;
@@ -62,6 +62,10 @@ implementation
 
             jsonData.Free;
             cargaUsuariosJson := True;
+
+            //Inicializar Blockchain si no existe
+            if BlockchainCorreosGlobal = nil then
+                BlockchainCorreosGlobal := TBlockchain.Create;
         except
             on E: Exception do
             begin
@@ -183,6 +187,10 @@ implementation
                                 correoItem.Strings['asunto'],
                                 Now, // Usar la fecha actual o parsear si se agrega al JSON
                                 correoItem.Strings['mensaje']);
+                    
+                    //Blockchain
+                    if usuarioDestino^.correos <> nil then
+                        BlockchainCorreosGlobal.AddBlock(usuarioDestino^.correos);
 
                     if idCorreo > contadorCorreos then
                         contadorCorreos := idCorreo;
