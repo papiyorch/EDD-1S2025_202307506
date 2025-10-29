@@ -4,7 +4,7 @@ unit verBorradores;
 
 interface
 uses 
-    SysUtils, Classes, gtk2, glib2, gdk2, ArbolAVL, InterfaceTools, variables, ListaDoble, ListaSimple, ListaCircular;
+    SysUtils, Classes, gtk2, glib2, gdk2, ArbolAVL, InterfaceTools, variables, ListaDoble, ListaSimple, ListaCircular, Pila;
 
     procedure showVerBorradoresWindow;
     procedure insertarBorrador(borrador: TBorrador);
@@ -99,11 +99,29 @@ implementation
         recorrerInorden(usuarioActual^.borradores, @AgregarBorrador);
     end;
 
+    procedure onEliminarClicked(button: PGtkWidget; data: gpointer); cdecl;
+    var
+        borradorEliminado: PNodoAVL;
+        pila : PPila;
+    begin
+        borradorEliminado := PNodoAVL(data);
+        pila := usuarioActual^.papelera;
+
+        insertarPila(pila, borradorEliminado^.valor.idCorreo, borradorEliminado^.valor.remitente, 'NL', False, borradorEliminado^.valor.asunto, Now, borradorEliminado^.valor.mensaje);
+        usuarioActual^.papelera := pila;
+        eliminar(usuarioActual^.borradores, borradorEliminado^.clave);
+        mostrarMensajeLogin(verBorradoresWindow, 'Éxito', 'Borrador eliminado y movido a la papelera.');
+        gtk_list_store_clear(listStore);
+        recorrerInorden(usuarioActual^.borradores, @AgregarBorrador);
+    end;
+
+
     procedure mostrarVentanaEdicion(idCorreo: Integer);
     var
         grid: PGtkWidget;
         btnEnviar: PGtkWidget;
         btnGuardar: PGtkWidget;
+        btnEliminar: PGtkWidget;
         borrador: PNodoAVL;
     begin
         borrador := buscar(usuarioActual^.borradores, idCorreo);
@@ -120,7 +138,7 @@ implementation
         gtk_container_set_border_width(GTK_CONTAINER(modificarBorradorWindow), 10);
         gtk_window_set_default_size(GTK_WINDOW(modificarBorradorWindow), 400, 300);
 
-        grid := gtk_table_new(5, 2, False);
+        grid := gtk_table_new(6, 2, False);
         gtk_container_add(GTK_CONTAINER(modificarBorradorWindow), grid);
 
         destinatarioEntry := gtk_entry_new();
@@ -141,11 +159,15 @@ implementation
 
         btnGuardar := gtk_button_new_with_label('Guardar Cambios');    
         g_signal_connect(btnGuardar, 'clicked', G_CALLBACK(@modificarBorrador), gpointer(borrador));
-        gtk_table_attach_defaults(GTK_TABLE(grid), btnGuardar, 0, 2, 4, 5);
+        gtk_table_attach(GTK_TABLE(grid), btnGuardar, 0, 2, 4, 5, GTK_SHRINK, GTK_SHRINK, 5, 5);
 
         btnEnviar := gtk_button_new_with_label('Enviar Correo');
         g_signal_connect(btnEnviar, 'clicked', G_CALLBACK(@onEnviarClicked), gpointer(borrador));
-        gtk_table_attach_defaults(GTK_TABLE(grid), btnEnviar, 0, 2, 5, 6);
+        gtk_table_attach(GTK_TABLE(grid), btnEnviar, 0, 2, 5, 6, GTK_SHRINK, GTK_SHRINK, 5, 5);
+
+        btnEliminar := gtk_button_new_with_label('Eliminar Borrador');
+        g_signal_connect(btnEliminar, 'clicked', G_CALLBACK(@onEliminarClicked), gpointer(borrador));
+        gtk_table_attach(GTK_TABLE(grid), btnEliminar, 0, 2, 6, 7, GTK_SHRINK, GTK_SHRINK, 5, 5);
 
         gtk_widget_show_all(modificarBorradorWindow);
 

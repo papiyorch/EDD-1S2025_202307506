@@ -4,7 +4,21 @@ unit ListaDoble;
 
 interface
     uses
-        SysUtils, Classes, InterfaceTools, ListaSimple;
+        SysUtils, Classes, InterfaceTools;
+
+    type
+        //Lista doble de correos
+        PCorreo = ^TCorreo;
+        TCorreo = record
+            idCorreo: String;
+            remitente: String;
+            estado: String;
+            programado: Boolean;
+            asunto: String;
+            fecha: TDateTime;
+            mensaje: String;
+            siguiente, anterior: PCorreo;
+        end;
 
     procedure insertarDoble(var lista: PCorreo; idCorreo, remitente, estado: string; programado: Boolean; asunto: string; fecha: TDateTime; mensaje: string);
     function EscapeDotString(const S: string): string;

@@ -5,7 +5,7 @@ unit ListaSimple;
 
 interface 
     uses
-        SysUtils, Classes, InterfaceTools, ArbolB, ArbolAVL, fpjson, jsonparser;
+        SysUtils, Classes, InterfaceTools, ArbolB, ArbolAVL, ArbolMerkle, fpjson, jsonparser, ListaDoble;
     type
 
         //Lista para el control de logueo
@@ -26,19 +26,6 @@ interface
             email: String;
             telefono: String;
             siguiente: PContacto;
-        end;
-
-        //Lista doble de correos
-        PCorreo = ^TCorreo;
-        TCorreo = record
-            idCorreo: String;
-            remitente: String;
-            estado: String;
-            programado: Boolean;
-            asunto: String;
-            fecha: TDateTime;
-            mensaje: String;
-            siguiente, anterior: PCorreo;
         end;
 
         //Pila de correos
@@ -95,6 +82,7 @@ interface
             favoritos: PNodoB;
             siguiente: PNodo;
             borradores: PNodoAVL;
+            privados: TMrklePrivados;
         end;
 
     var

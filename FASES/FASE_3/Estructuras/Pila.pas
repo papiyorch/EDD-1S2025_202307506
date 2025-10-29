@@ -4,7 +4,7 @@ unit Pila;
 
 interface
     uses
-        SysUtils, Classes, InterfaceTools, ListaSimple;
+        SysUtils, Classes, InterfaceTools, ListaSimple, ListaDoble;
 
     procedure insertarPila(var pila: PPila; idCorreo, remitente, estado: String; programado: Boolean; asunto: String; fechaEnvio: TDateTime; mensaje: String);
     procedure eliminarPila(var pila: PPila);
